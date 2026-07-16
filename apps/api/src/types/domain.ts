@@ -1,24 +1,26 @@
+/** Single definition of normalized API shapes (plan Section 6). */
+
 export type NetworkType = 'residential' | 'mobile' | 'datacenter' | 'proxy_vpn' | 'unknown';
 
 export interface IpIntelligence {
   ip: string;
   country: string | null;
-  countryCode: string | null;
+  countryCode: string | null; // ISO 3166-1 alpha-2
   city: string | null;
   region: string | null;
   latitude: number | null;
   longitude: number | null;
-  timezone: string | null;
-  currency: string | null;
+  timezone: string | null; // IANA, e.g. "Africa/Lagos"
+  currency: string | null; // ISO 4217, e.g. "NGN"
   isp: string | null;
   organization: string | null;
-  asn: string | null;
+  asn: string | null; // e.g. "AS15169"
   asnName: string | null;
-  isProxy: boolean | null;
-  isHosting: boolean | null;
+  isProxy: boolean | null; // null = provider could not determine
+  isHosting: boolean | null; // datacenter
   isMobile: boolean | null;
   networkType: NetworkType;
-  confidence: number;
+  confidence: number; // 0..1 (see Section 12.4)
 }
 
 export interface Coin {
@@ -27,14 +29,14 @@ export interface Coin {
   name: string;
   image: string | null;
   currentPrice: number;
-  currency: string;
+  currency: string; // vs_currency used
   marketCap: number | null;
   marketCapRank: number | null;
   priceChangePct24h: number | null;
   totalVolume: number | null;
   high24h: number | null;
   low24h: number | null;
-  lastUpdated: string;
+  lastUpdated: string; // ISO 8601
 }
 
 export interface TrendingCoin {
@@ -47,24 +49,17 @@ export interface TrendingCoin {
 
 export interface TrendingResult {
   trending: TrendingCoin[];
-  gainers: Coin[];
-  losers: Coin[];
+  gainers: Coin[]; // top +priceChangePct24h
+  losers: Coin[]; // top -priceChangePct24h
 }
 
 export interface NewsItem {
   title: string;
   url: string;
   source: string | null;
-  publishedAt: string;
+  publishedAt: string; // ISO 8601
   sentiment: 'positive' | 'negative' | 'neutral' | null;
   imageUrl: string | null;
-}
-
-export interface SectionMeta {
-  ok: boolean;
-  source: 'live' | 'cache-l1' | 'cache-l2' | 'fallback' | 'error';
-  latencyMs: number;
-  error: string | null;
 }
 
 export interface DashboardPayload {
@@ -77,5 +72,28 @@ export interface DashboardPayload {
     trending: SectionMeta;
     news: SectionMeta;
   };
-  degraded: boolean;
+  degraded: boolean; // true if any section failed
+}
+
+export interface SectionMeta {
+  ok: boolean;
+  source: 'live' | 'cache-l1' | 'cache-l2' | 'fallback' | 'error';
+  latencyMs: number;
+  error: string | null;
+}
+
+// --- Auth & watchlist (Phases 14–15) ---
+
+export interface AuthUser {
+  uid: string; // Firebase Auth uid (from verified ID token)
+  email: string | null;
+  name: string | null;
+  picture: string | null; // avatar URL
+}
+
+export interface WatchlistItem {
+  coinId: string; // CoinGecko id, e.g. "bitcoin"
+  available: boolean; // false if the coin could not be priced
+  coin: Coin | null; // enriched live price data (null when unavailable)
+  addedAt: string; // ISO 8601
 }

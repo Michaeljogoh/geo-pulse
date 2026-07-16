@@ -1,4 +1,5 @@
 import type { Logger } from '../lib/logger.js';
+import type { AuthUser } from './domain.js';
 
 declare global {
   namespace Express {
@@ -13,6 +14,7 @@ declare global {
       degraded?: boolean;
       country?: string | null;
       provider?: string | null;
+      user?: AuthUser;
     }
   }
 }

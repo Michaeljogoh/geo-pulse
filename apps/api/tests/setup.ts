@@ -8,5 +8,6 @@ process.env.FIREBASE_PRIVATE_KEY =
   '-----BEGIN PRIVATE KEY-----\\nTEST_KEY\\n-----END PRIVATE KEY-----\\n';
 process.env.CRYPTOPANIC_TOKEN = 'test-cryptopanic-token';
 process.env.CACHE_ENABLED = 'true';
+process.env.AUTH_ENABLED = 'true';
 process.env.IP_PROVIDER = 'ipapi';
 process.env.COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';

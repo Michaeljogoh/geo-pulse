@@ -40,6 +40,7 @@ const envSchema = z.object({
     z.string().min(1).optional(),
   ),
   CACHE_ENABLED: booleanFromString.default(true),
+  AUTH_ENABLED: booleanFromString.default(true),
 });
 
 export type Env = z.infer<typeof envSchema>;

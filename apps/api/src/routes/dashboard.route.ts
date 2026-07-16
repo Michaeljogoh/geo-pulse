@@ -1,18 +1,35 @@
 import { Router } from 'express';
 
-/** Phase 10 — GET /api/dashboard */
+import { asyncHandler } from '../lib/asyncHandler.js';
+import { resolveLookupIp } from '../lib/clientIp.js';
+import { ok } from '../lib/envelope.js';
+import { ipQuerySchema, type IpQuery } from '../lib/querySchemas.js';
+import { validateQuery } from '../middleware/validate.js';
+import { getDashboard } from '../services/dashboardService.js';
+
+/** Section 9.6 — GET /api/dashboard */
 export const dashboardRouter = Router();
 
-dashboardRouter.get('/api/dashboard', (_req, res) => {
-  res.status(501).json({
-    data: null,
-    meta: {
-      requestId: res.locals.requestId,
-      source: 'live',
-      latencyMs: Math.max(0, Date.now() - res.locals.startTime),
-      cached: false,
-      degraded: true,
-    },
-    error: { code: 'INTERNAL', message: 'Not implemented: /api/dashboard (Phase 10)' },
-  });
-});
+dashboardRouter.get(
+  '/api/dashboard',
+  validateQuery(ipQuerySchema),
+  asyncHandler(async (req, res) => {
+    const query = req.query as unknown as IpQuery;
+    const { ip } = resolveLookupIp(req, query.ip);
+    const payload = await getDashboard(ip);
+
+    res.locals.degraded = payload.degraded;
+    res.locals.country = payload.visitor.countryCode;
+
+    res.status(200).json(
+      ok(payload, {
+        requestId: res.locals.requestId,
+        startTime: res.locals.startTime,
+        source: 'live',
+        cached: false,
+        degraded: payload.degraded,
+        confidence: payload.visitor.confidence,
+      }),
+    );
+  }),
+);

@@ -3,6 +3,7 @@ import express, { type Express } from 'express';
 import helmet from 'helmet';
 
 import { env } from './config/env.js';
+import { mountSwagger } from './docs/swagger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
@@ -24,6 +25,7 @@ export function createApp(): Express {
     }),
   );
   app.use(rateLimiter);
+  mountSwagger(app);
   app.use(createApiRouter());
   app.use(notFound);
   app.use(errorHandler);

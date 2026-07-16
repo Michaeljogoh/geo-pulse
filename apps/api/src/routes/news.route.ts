@@ -1,17 +1,32 @@
 import { Router } from 'express';
 
-/** Phase 9 — GET /api/news */
+import { asyncHandler } from '../lib/asyncHandler.js';
+import { ok } from '../lib/envelope.js';
+import { newsQuerySchema, type NewsQuery } from '../lib/querySchemas.js';
+import { validateQuery } from '../middleware/validate.js';
+import { getNews } from '../services/newsService.js';
+
+/** Section 9.5 — GET /api/news */
 export const newsRouter = Router();
 
-newsRouter.get('/api/news', (_req, res) => {
-  res.status(501).json({
-    data: null,
-    meta: {
-      requestId: res.locals.requestId,
-      source: 'live',
-      latencyMs: Math.max(0, Date.now() - res.locals.startTime),
-      cached: false,
-    },
-    error: { code: 'INTERNAL', message: 'Not implemented: /api/news (Phase 9)' },
-  });
-});
+newsRouter.get(
+  '/api/news',
+  validateQuery(newsQuerySchema),
+  asyncHandler(async (req, res) => {
+    const query = req.query as unknown as NewsQuery;
+    const result = await getNews({
+      country: query.country,
+      symbols: query.symbols,
+      lang: query.lang,
+    });
+
+    res.status(200).json(
+      ok(result.value, {
+        requestId: res.locals.requestId,
+        startTime: res.locals.startTime,
+        source: result.source,
+        cached: result.source === 'cache-l1' || result.source === 'cache-l2',
+      }),
+    );
+  }),
+);

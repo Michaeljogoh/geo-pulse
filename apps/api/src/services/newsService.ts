@@ -7,5 +7,7 @@ export async function getNews(_params: {
   symbols?: string[];
   lang?: string;
 }): Promise<CacheResult<NewsItem[]>> {
-  throw new Error('Not implemented: newsService.getNews (Phase 9)');
+  throw Object.assign(new Error('Not implemented: newsService.getNews (Phase 9)'), {
+    isUpstream: true,
+  });
 }

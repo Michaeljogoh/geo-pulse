@@ -22,3 +22,9 @@ export const RATE_LIMIT_MAX = 60;
 
 export const MARKET_DEFAULT_LIMIT = 20;
 export const MARKET_MAX_LIMIT = 100;
+
+/** Documented demo IP used when the caller address is private/loopback (Section 9.2). */
+export const DEMO_PUBLIC_IP = '8.8.8.8';
+
+/** Max coins on a user watchlist (Phase 15). */
+export const WATCHLIST_MAX_ITEMS = 50;

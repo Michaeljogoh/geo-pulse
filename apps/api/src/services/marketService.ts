@@ -6,9 +6,13 @@ export async function getMarket(
   _vs: string,
   _limit: number,
 ): Promise<CacheResult<Coin[]>> {
-  throw new Error('Not implemented: marketService.getMarket (Phase 8)');
+  throw Object.assign(new Error('Not implemented: marketService.getMarket (Phase 8)'), {
+    isUpstream: true,
+  });
 }
 
 export async function getTrending(_vs: string): Promise<CacheResult<TrendingResult>> {
-  throw new Error('Not implemented: marketService.getTrending (Phase 8)');
+  throw Object.assign(new Error('Not implemented: marketService.getTrending (Phase 8)'), {
+    isUpstream: true,
+  });
 }

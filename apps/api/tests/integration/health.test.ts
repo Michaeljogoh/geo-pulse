@@ -12,8 +12,8 @@ describe('GET /health', () => {
     expect(res.body).toMatchObject({
       status: 'ok',
       version: '1.0.0',
-      firestore: 'unknown',
     });
+    expect(['up', 'down', 'unknown']).toContain(res.body.firestore);
     expect(typeof res.body.uptimeSeconds).toBe('number');
     expect(typeof res.body.timestamp).toBe('string');
     expect(res.headers['x-request-id']).toBeTruthy();

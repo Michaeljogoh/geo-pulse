@@ -18,3 +18,19 @@ export function validateQuery(schema: ZodTypeAny) {
     next();
   };
 }
+
+export function validateParams(schema: ZodTypeAny) {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    const parsed = schema.safeParse(req.params);
+    if (!parsed.success) {
+      const details = parsed.error.issues.map((issue) => ({
+        path: issue.path.join('.') || '(root)',
+        issue: issue.message,
+      }));
+      next(AppError.validation(details, 'Invalid path parameter'));
+      return;
+    }
+    req.params = parsed.data as Request['params'];
+    next();
+  };
+}

@@ -97,3 +97,15 @@ export interface WatchlistItem {
   coin: Coin | null; // enriched live price data (null when unavailable)
   addedAt: string; // ISO 8601
 }
+
+/** Provider health snapshot for GET /api/status (Section 9.7 / Phase 13). */
+export interface ProviderHealth {
+  provider: string;
+  state: 'closed' | 'open' | 'half_open';
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+  consecutiveFail: number;
+  successCount: number;
+  failureCount: number;
+  avgLatencyMs: number;
+}

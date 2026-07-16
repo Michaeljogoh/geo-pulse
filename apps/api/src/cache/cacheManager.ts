@@ -31,7 +31,7 @@ export class CacheManager {
 
   constructor(options: CacheManagerOptions = {}) {
     this.l1 = options.l1 ?? new MemoryCache();
-    this.l2 = options.l2 ?? new FirestoreCache({ available: false });
+    this.l2 = options.l2 ?? new FirestoreCache();
     this.cacheEnabled = options.cacheEnabled ?? env.CACHE_ENABLED;
   }
 

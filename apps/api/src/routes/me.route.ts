@@ -1,17 +1,34 @@
 import { Router } from 'express';
 
-/** Phase 14 — GET /api/me (protected). */
+import { asyncHandler } from '../lib/asyncHandler.js';
+import { ok } from '../lib/envelope.js';
+import { AppError } from '../lib/errors.js';
+import { requireAuth } from '../middleware/auth.js';
+import { upsertOnLogin } from '../repositories/userRepository.js';
+
+/** Section 9.9 — GET /api/me (protected). */
 export const meRouter = Router();
 
-meRouter.get('/api/me', (_req, res) => {
-  res.status(501).json({
-    data: null,
-    meta: {
-      requestId: res.locals.requestId,
-      source: 'live',
-      latencyMs: Math.max(0, Date.now() - res.locals.startTime),
-      cached: false,
-    },
-    error: { code: 'INTERNAL', message: 'Not implemented: /api/me (Phase 14)' },
-  });
-});
+meRouter.get(
+  '/api/me',
+  asyncHandler(requireAuth),
+  asyncHandler(async (_req, res) => {
+    const user = res.locals.user;
+    if (!user) {
+      throw AppError.unauthenticated();
+    }
+
+    void upsertOnLogin(user).catch(() => {
+      // fail-open
+    });
+
+    res.status(200).json(
+      ok(user, {
+        requestId: res.locals.requestId,
+        startTime: res.locals.startTime,
+        source: 'live',
+        cached: false,
+      }),
+    );
+  }),
+);

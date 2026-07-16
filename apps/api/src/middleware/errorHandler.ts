@@ -2,44 +2,45 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { env } from '../config/env.js';
 import { fail } from '../lib/envelope.js';
-import { AppError } from '../lib/errors.js';
+import { AppError, isAppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
-import type { ApiError } from '../types/envelope.js';
 
+/**
+ * Central error → envelope mapper (plan Section 8).
+ * Unknown errors → INTERNAL; never leak stack/messages to clients in production.
+ */
 export function errorHandler(
   err: unknown,
   req: Request,
   res: Response,
   _next: NextFunction,
 ): void {
-  const requestId = (res.locals.requestId as string | undefined) ?? 'unknown';
-  const startTime = (res.locals.startTime as number | undefined) ?? Date.now();
+  const requestId = res.locals.requestId ?? 'unknown';
+  const startTime = res.locals.startTime ?? Date.now();
   const log = req.log ?? logger.child({ requestId });
 
   let appError: AppError;
-  if (err instanceof AppError) {
+
+  if (isAppError(err)) {
     appError = err;
+    if (err.isOperational) {
+      log.warn({ code: err.code, details: err.details }, err.message);
+    } else {
+      log.error({ err, code: err.code }, 'Non-operational AppError');
+    }
   } else {
     log.error({ err }, 'Unhandled error');
-    appError = AppError.internal(
-      env.NODE_ENV === 'production' ? 'Internal server error' : 'Internal server error',
-    );
+    const safeMessage =
+      env.NODE_ENV === 'production'
+        ? 'Internal server error'
+        : err instanceof Error
+          ? err.message
+          : 'Internal server error';
+    appError = AppError.internal(safeMessage);
   }
-
-  if (!(err instanceof AppError) || !err.isOperational) {
-    log.error({ err, code: appError.code }, 'Request failed');
-  } else {
-    log.warn({ code: appError.code, details: appError.details }, appError.message);
-  }
-
-  const apiError: ApiError = {
-    code: appError.code,
-    message: appError.message,
-    ...(appError.details !== undefined ? { details: appError.details } : {}),
-  };
 
   res.status(appError.httpStatus).json(
-    fail(apiError, {
+    fail(appError.toApiError(), {
       requestId,
       startTime,
       source: 'live',

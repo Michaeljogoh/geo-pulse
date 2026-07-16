@@ -1,5 +1,23 @@
-import type { ErrorCode } from '../types/envelope.js';
+import type { ApiError, ErrorCode } from '../types/envelope.js';
 
+/** Single source of truth: ErrorCode → HTTP status (plan Section 8). */
+export const ERROR_HTTP_STATUS = {
+  VALIDATION_ERROR: 400,
+  UNAUTHENTICATED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  RATE_LIMITED: 429,
+  UPSTREAM_ERROR: 502,
+  CIRCUIT_OPEN: 503,
+  UPSTREAM_TIMEOUT: 504,
+  INTERNAL: 500,
+} as const satisfies Record<ErrorCode, number>;
+
+/**
+ * Operational application error.
+ * Carries `{ code, httpStatus, message, details?, isOperational }`.
+ * Mapped to the standard envelope by `errorHandler`.
+ */
 export class AppError extends Error {
   readonly code: ErrorCode;
   readonly httpStatus: number;
@@ -8,10 +26,10 @@ export class AppError extends Error {
 
   constructor(
     code: ErrorCode,
-    httpStatus: number,
     message: string,
     details?: unknown,
     isOperational = true,
+    httpStatus: number = ERROR_HTTP_STATUS[code],
   ) {
     super(message);
     this.name = 'AppError';
@@ -19,38 +37,65 @@ export class AppError extends Error {
     this.httpStatus = httpStatus;
     this.details = details;
     this.isOperational = isOperational;
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
+  toApiError(): ApiError {
+    return {
+      code: this.code,
+      message: this.message,
+      ...(this.details !== undefined ? { details: this.details } : {}),
+    };
+  }
+
+  /** Zod query/param validation fails → 400 */
   static validation(details?: unknown, message = 'Validation failed'): AppError {
-    return new AppError('VALIDATION_ERROR', 400, message, details);
+    return new AppError('VALIDATION_ERROR', message, details);
   }
 
-  static notFound(message = 'Resource not found'): AppError {
-    return new AppError('NOT_FOUND', 404, message);
+  /** Missing/invalid/expired Firebase ID token → 401 */
+  static unauthenticated(message = 'Authentication required', details?: unknown): AppError {
+    return new AppError('UNAUTHENTICATED', message, details);
   }
 
-  static rateLimited(message = 'Too many requests'): AppError {
-    return new AppError('RATE_LIMITED', 429, message);
+  /** Authenticated but not allowed for the resource → 403 */
+  static forbidden(message = 'Forbidden', details?: unknown): AppError {
+    return new AppError('FORBIDDEN', message, details);
   }
 
+  /** Unknown route or resource → 404 */
+  static notFound(message = 'Resource not found', details?: unknown): AppError {
+    return new AppError('NOT_FOUND', message, details);
+  }
+
+  /** Client exceeded rate limit → 429 */
+  static rateLimited(message = 'Too many requests', details?: unknown): AppError {
+    return new AppError('RATE_LIMITED', message, details);
+  }
+
+  /** External API timed out (after retries) → 504 */
   static upstreamTimeout(message = 'Upstream request timed out', details?: unknown): AppError {
-    return new AppError('UPSTREAM_TIMEOUT', 504, message, details);
+    return new AppError('UPSTREAM_TIMEOUT', message, details);
   }
 
+  /** External API returned an unrecoverable error → 502 */
   static upstreamError(message = 'Upstream request failed', details?: unknown): AppError {
-    return new AppError('UPSTREAM_ERROR', 502, message, details);
+    return new AppError('UPSTREAM_ERROR', message, details);
   }
 
+  /** Circuit breaker open for the required provider → 503 */
   static circuitOpen(provider: string): AppError {
-    return new AppError(
-      'CIRCUIT_OPEN',
-      503,
-      `Circuit breaker open for provider: ${provider}`,
-      { provider },
-    );
+    return new AppError('CIRCUIT_OPEN', `Circuit breaker open for provider: ${provider}`, {
+      provider,
+    });
   }
 
+  /** Unexpected error → 500 (`isOperational: false`) */
   static internal(message = 'Internal server error', details?: unknown): AppError {
-    return new AppError('INTERNAL', 500, message, details, false);
+    return new AppError('INTERNAL', message, details, false);
   }
+}
+
+export function isAppError(err: unknown): err is AppError {
+  return err instanceof AppError;
 }

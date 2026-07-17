@@ -22,7 +22,7 @@ services:
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
-      - key: CRYPTOPANIC_TOKEN
+      - key: CRYPTOCOMPARE_API_KEY
         sync: false
       - key: GNEWS_API_KEY
         sync: false

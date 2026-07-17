@@ -26,7 +26,7 @@
                                                      │
         ┌────────────────────────┬───────────────────┼───────────────────────┐
         ▼                        ▼                    ▼                       ▼
-  ip-api.com / ipwho.is     CoinGecko          CryptoPanic / GNews     Cloud Firestore
+  ip-api.com / ipwho.is     CoinGecko          CryptoCompare / GNews   Cloud Firestore
   (IP intelligence)        (market data)          (crypto news)        (cache + logs + health)
 ```
 
@@ -40,7 +40,7 @@
 | **Repositories** | Firestore | Persist request logs and provider health (fail-open) |
 | **CacheManager** | L1 memory + L2 Firestore | Two-tier `getOrSet`, stale-while-error |
 
-Concrete providers (ip-api, CoinGecko, CryptoPanic, etc.) implement the provider interfaces. Swapping the IP provider for IP-Meta later is a one-line factory change (`IP_PROVIDER` + factory), not a rewrite of routes or services.
+Concrete providers (ip-api, CoinGecko, CryptoCompare, etc.) implement the provider interfaces. Swapping the IP provider for IP-Meta later is a one-line factory change (`IP_PROVIDER` + factory), not a rewrite of routes or services.
 
 ## External systems
 
@@ -48,7 +48,7 @@ Concrete providers (ip-api, CoinGecko, CryptoPanic, etc.) implement the provider
 | ------ | ---- |
 | ip-api.com / ipwho.is | IP intelligence (primary / fallback); IP-Meta reserved stub |
 | CoinGecko | Market lists, trending, gainers/losers |
-| CryptoPanic / GNews | Crypto news (primary / optional regional fallback) |
+| CryptoCompare / GNews | Crypto news (primary / optional regional fallback) |
 | Cloud Firestore | L2 cache, request logs, provider health snapshots |
 
 ## What this stage does / does not include

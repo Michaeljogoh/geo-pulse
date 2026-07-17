@@ -57,7 +57,7 @@ ahead. Each Phase has:
                                                      │
         ┌────────────────────────┬───────────────────┼───────────────────────┐
         ▼                        ▼                    ▼                       ▼
-  ip-api.com / ipwho.is     CoinGecko          CryptoPanic / GNews     Cloud Firestore
+  ip-api.com / ipwho.is     CoinGecko          CryptoCompare / GNews   Cloud Firestore
   (IP intelligence)        (market data)          (crypto news)        (cache + logs + health)
 ```
 
@@ -159,7 +159,7 @@ All are validated at boot (Phase 1). App must **exit with a clear error** if a r
 | `IP_PROVIDER`           | no       | `ipapi`                                         | `ipapi`                            |
 | `COINGECKO_BASE_URL`    | no       | `https://api.coingecko.com/api/v3`              | Default set                        |
 | `COINGECKO_DEMO_KEY`    | no       | `CG-xxxx`                                       | Optional, raises rate limit        |
-| `CRYPTOPANIC_TOKEN`     | yes      | `xxxx`                                          | Free token                         |
+| `CRYPTOCOMPARE_API_KEY` | yes      | `xxxx`                                          | Free CryptoCompare API key         |
 | `GNEWS_API_KEY`         | no       | `xxxx`                                          | Enables regional news fallback     |
 | `CACHE_ENABLED`         | no       | `true`                                          | Toggle caching (default `true`)    |
 | `AUTH_ENABLED`          | no       | `true`                                          | Toggle auth on protected routes (default `true`) |
@@ -226,7 +226,7 @@ apps/api/
 │   │   │   ├── coinGeckoProvider.ts # (Phase 8)
 │   │   │   └── index.ts             # (Phase 8)
 │   │   └── news/
-│   │       ├── cryptoPanicProvider.ts # (Phase 9)
+│   │       ├── cryptoCompareProvider.ts # (Phase 9)
 │   │       ├── gNewsProvider.ts       # (Phase 9)
 │   │       └── index.ts               # (Phase 9)
 │   ├── services/
@@ -584,7 +584,7 @@ createdAt   Timestamp
 
 ### `provider_health/{provider}` — breaker + metrics snapshot (Phase 13)
 
-`provider` doc id ∈ { `ipapi`, `ipwho`, `coingecko`, `cryptopanic`, `gnews` }.
+`provider` doc id ∈ { `ipapi`, `ipwho`, `coingecko`, `cryptocompare`, `gnews` }.
 
 ```
 provider        string
@@ -839,18 +839,18 @@ second identical request served from L1 (`meta.source="cache-l1"`).
 ### Phase 9 — News providers + news service + `/api/news`
 
 **Depends on:** Phase 8.
-**Files:** `src/providers/news/cryptoPanicProvider.ts`, `gNewsProvider.ts`, `news/index.ts`,
+**Files:** `src/providers/news/cryptoCompareProvider.ts`, `gNewsProvider.ts`, `news/index.ts`,
 `src/services/newsService.ts`, `src/routes/news.route.ts`.
 **Spec:**
 
-- `cryptoPanicProvider` (**primary**): `GET https://cryptopanic.com/api/v1/posts/?auth_token={CRYPTOPANIC_TOKEN}&public=true&currencies={symbols|BTC,ETH}&kind=news`. Map per Section 12.5; derive `sentiment` from `votes` if present else `null`.
+- `cryptoCompareProvider` (**primary**): `GET https://min-api.cryptocompare.com/data/v2/news/?lang={LANG}&categories={symbols|BTC,ETH}` with header `authorization: Apikey {CRYPTOCOMPARE_API_KEY}`. Map per Section 12.5; derive `sentiment` from `upvotes`/`downvotes` if present else `null`.
 - `gNewsProvider` (**fallback, regional**): only enabled if `GNEWS_API_KEY` set. `GET https://gnews.io/api/v4/search?q=crypto&lang={lang}&country={country}&max=10&apikey={key}`. Map per Section 12.6.
-- `news/index.ts`: `getNews({ country, symbols, lang })` → try CryptoPanic; on failure or empty and
+- `news/index.ts`: `getNews({ country, symbols, lang })` → try CryptoCompare; on failure or empty and
 GNews enabled, fall back to GNews; annotate provider used.
 - `newsService`: cache per Section 9.5 key + `CACHE_TTL_NEWS_S`.
 - `news.route.ts`: validate `country?`, `symbols?` (comma → array, uppercased), `lang?` (default `en`).
-**Acceptance:** `/api/news?symbols=BTC,ETH` returns normalized items; CryptoPanic failure with GNews
-key set falls back to GNews (MSW-verified); missing GNews key → CryptoPanic-only, no crash.
+**Acceptance:** `/api/news?symbols=BTC,ETH` returns normalized items; CryptoCompare failure with GNews
+key set falls back to GNews (MSW-verified); missing GNews key → CryptoCompare-only, no crash.
 **DoD:** `tests/integration/news.test.ts` + provider unit tests pass.
 
 ---
@@ -1009,7 +1009,7 @@ the prune query/batch logic) green. Add `docs/adr/0006-cloud-functions-scheduled
 **Files:** `tests/msw/handlers.ts`, `tests/msw/server.ts`, plus completion of unit/integration tests.
 **Spec:**
 
-- MSW handlers for ip-api, ipwho, CoinGecko, CryptoPanic, GNews with realistic fixtures (from Section 12).
+- MSW handlers for ip-api, ipwho, CoinGecko, CryptoCompare, GNews with realistic fixtures (from Section 12).
 - Coverage focus (meaningful, not 100%): `httpClient`, `circuitBreaker`, `cacheManager`, each provider
 mapping, each service, each route, dashboard partial-failure, error handler, **auth middleware
 (token verify + 401 paths)**, and **watchlist add/list/remove + ownership scoping**.
@@ -1163,20 +1163,21 @@ confidence:
 
 (ip-api typically → ~0.9–1.0; ipwho.is fallback → ~0.7 since flags are null.)
 
-### 12.5 CryptoPanic → `NewsItem`
+### 12.5 CryptoCompare → `NewsItem`
 
-Endpoint: `https://cryptopanic.com/api/v1/posts/?auth_token={token}&public=true&currencies={symbols}&kind=news`
-`results[]`:
+Endpoint: `https://min-api.cryptocompare.com/data/v2/news/?lang={LANG}&categories={symbols}`
+Auth header: `authorization: Apikey {CRYPTOCOMPARE_API_KEY}`
+`Data[]`:
 
 
 | Raw                         | Normalized                                    |
 | --------------------------- | --------------------------------------------- |
 | `title`                     | `title`                                       |
 | `url`                       | `url`                                         |
-| `source.title`              | `source`                                      |
-| `published_at`              | `publishedAt`                                 |
-| `votes` (positive/negative) | `sentiment` (`positive`/`negative`/`neutral`) |
-| —                           | `imageUrl` = `null`                           |
+| `source_info.name` / `source` | `source`                                    |
+| `published_on` (unix sec)   | `publishedAt` (ISO)                           |
+| `upvotes` / `downvotes`      | `sentiment` (`positive`/`negative`/`neutral`) |
+| `imageurl`                  | `imageUrl`                                    |
 
 
 ### 12.6 GNews → `NewsItem`

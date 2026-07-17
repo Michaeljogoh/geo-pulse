@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { loadConfig, WARM_CACHE_PATHS } from '../src/lib/config';
 
-describe('functions config (Phase 16)', () => {
+describe('functions config', () => {
   it('loads defaults and strips trailing slash from API_BASE_URL', () => {
     const cfg = loadConfig({
       API_BASE_URL: 'https://api.example.com/',

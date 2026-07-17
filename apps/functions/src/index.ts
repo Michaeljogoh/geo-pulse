@@ -10,8 +10,8 @@ setGlobalOptions({
 });
 
 /**
- * Phase 16 — warm L2 cache by hitting the live API every 5 minutes.
- * Requires secret/param `API_BASE_URL` (see docs/setup/functions.md).
+ * Warm L2 cache by hitting the live API every 5 minutes.
+ * Requires `API_BASE_URL` (see docs/setup/functions.md).
  */
 export const warmCache = onSchedule(
   {
@@ -28,7 +28,7 @@ export const warmCache = onSchedule(
 );
 
 /**
- * Phase 16 — prune old request_logs every 24 hours.
+ * Prune old request_logs every 24 hours.
  */
 export const pruneRequestLogs = onSchedule(
   {

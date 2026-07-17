@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { asyncHandler } from '../lib/asyncHandler.js';
+import { cacheStatusFromSource } from '../lib/cacheStatus.js';
 import { ok } from '../lib/envelope.js';
 import { newsQuerySchema, type NewsQuery } from '../lib/querySchemas.js';
 import { validateQuery } from '../middleware/validate.js';
@@ -20,12 +21,19 @@ newsRouter.get(
       lang: query.lang,
     });
 
+    res.locals.cacheStatus = cacheStatusFromSource(result.source);
+    res.locals.provider = result.provider;
+    if (query.country) {
+      res.locals.country = query.country.toUpperCase();
+    }
+
     res.status(200).json(
       ok(result.value, {
         requestId: res.locals.requestId,
         startTime: res.locals.startTime,
         source: result.source,
         cached: result.source === 'cache-l1' || result.source === 'cache-l2',
+        provider: result.provider,
       }),
     );
   }),

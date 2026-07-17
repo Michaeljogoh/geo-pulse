@@ -1,14 +1,12 @@
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { createHttpClient, type NormalizedHttpError } from '../../src/lib/httpClient.js';
+import { server } from '../msw/server.js';
 
-const server = setupServer();
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+afterEach(() => {
+  // setup.ts also resets; keep local clarity for handler overrides
+});
 
 describe('createHttpClient', () => {
   it('retries once on 500 then succeeds', async () => {

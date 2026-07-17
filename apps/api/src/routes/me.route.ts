@@ -18,9 +18,8 @@ meRouter.get(
       throw AppError.unauthenticated();
     }
 
-    void upsertOnLogin(user).catch(() => {
-      // fail-open
-    });
+    // Fire-and-forget profile upsert (fail-open inside repository).
+    void upsertOnLogin(user);
 
     res.status(200).json(
       ok(user, {

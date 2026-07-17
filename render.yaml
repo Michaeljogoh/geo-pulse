@@ -1,0 +1,36 @@
+# Optional Render Blueprint (Phase 19). Set secrets in the Render dashboard — never commit them.
+services:
+  - type: web
+    name: geoip-crypto-intel-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
+      - key: LOG_LEVEL
+        value: info
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: CRYPTOPANIC_TOKEN
+        sync: false
+      - key: GNEWS_API_KEY
+        sync: false
+      - key: AUTH_ENABLED
+        value: "true"
+      - key: CACHE_ENABLED
+        value: "true"
+      - key: IP_PROVIDER
+        value: ipapi
+      - key: COINGECKO_BASE_URL
+        value: https://api.coingecko.com/api/v3

@@ -1,20 +1,15 @@
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
 import request from 'supertest';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createApp } from '../../src/app.js';
 import { _resetCircuitBreakersForTests } from '../../src/lib/breakerRegistry.js';
 import { ipApiSuccess, ipWhoSuccess } from '../msw/handlers.js';
+import { server } from '../msw/server.js';
 
-const server = setupServer();
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 afterEach(() => {
-  server.resetHandlers();
   _resetCircuitBreakersForTests();
 });
-afterAll(() => server.close());
 
 describe('GET /api/geo (Phase 7)', () => {
   const app = createApp();

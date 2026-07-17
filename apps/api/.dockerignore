@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.git
+.env
+.env.*
+*.md
+tests
+.eslintrc*
+.prettierrc*
+vitest.config.ts
+firebase-debug.log

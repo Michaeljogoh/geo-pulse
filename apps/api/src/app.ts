@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
 import { requestContext } from './middleware/requestContext.js';
+import { requestLogging } from './middleware/requestLogging.js';
 import { createApiRouter } from './routes/index.js';
 
 export function createApp(): Express {
@@ -17,6 +18,7 @@ export function createApp(): Express {
 
   app.use(express.json());
   app.use(requestContext);
+  app.use(requestLogging);
   app.use(helmet());
   app.use(
     cors({

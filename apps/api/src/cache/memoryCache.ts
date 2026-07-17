@@ -60,4 +60,11 @@ export class MemoryCache implements CacheStore {
       misses: this.misses,
     };
   }
+
+  /** Test helper — clears all L1 entries. */
+  flush(): void {
+    this.cache.flushAll();
+    this.hits = 0;
+    this.misses = 0;
+  }
 }

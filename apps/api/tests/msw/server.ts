@@ -1,8 +1,8 @@
 import { setupServer } from 'msw/node';
 
-import { ipProviderHandlers } from './handlers.js';
+import { coinGeckoHandlers, ipProviderHandlers, newsHandlers } from './handlers.js';
 
 /**
- * Shared MSW server — expand in Phase 17 with market/news handlers.
+ * Shared MSW server (Phase 17 consolidation target).
  */
-export const server = setupServer(...ipProviderHandlers);
+export const server = setupServer(...ipProviderHandlers, ...coinGeckoHandlers, ...newsHandlers);

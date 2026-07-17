@@ -1,3 +1,4 @@
+import { AppError } from '../../lib/errors.js';
 import type { IpIntelligence } from '../../types/domain.js';
 import type { IpIntelligenceProvider } from '../types.js';
 
@@ -9,6 +10,6 @@ export class IpMetaProvider implements IpIntelligenceProvider {
   readonly name = 'ipmeta';
 
   async lookup(_ip: string): Promise<IpIntelligence> {
-    throw new Error('IP-Meta provider disabled for this assignment');
+    throw AppError.upstreamError('IP-Meta provider disabled for this assignment');
   }
 }

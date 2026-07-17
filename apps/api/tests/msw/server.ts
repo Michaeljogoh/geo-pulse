@@ -1,8 +1,8 @@
 import { setupServer } from 'msw/node';
 
-import { handlers } from './handlers.js';
+import { ipProviderHandlers } from './handlers.js';
 
 /**
- * Phase 17 — shared MSW server for unit/integration tests.
+ * Shared MSW server — expand in Phase 17 with market/news handlers.
  */
-export const server = setupServer(...handlers);
+export const server = setupServer(...ipProviderHandlers);

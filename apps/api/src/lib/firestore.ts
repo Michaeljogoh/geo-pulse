@@ -1,4 +1,4 @@
-import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
+import { cert, deleteApp, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
 import { env } from '../config/env.js';
@@ -32,8 +32,8 @@ export function isFirestoreDisabledForTests(): boolean {
 }
 
 /**
- * Lazy-init Firebase Admin + Firestore singleton (Phase 6 / Section 10).
- * Safe to call multiple times.
+ * Lazy-init Firebase Admin + Firestore singleton (Phase 6).
+ * Safe to call multiple times (double-init guarded).
  */
 export function initFirestore(): Firestore {
   if (state.db) {
@@ -52,6 +52,7 @@ export function initFirestore(): Firestore {
   try {
     if (getApps().length === 0) {
       if (usingFirestoreEmulator()) {
+        // Emulator does not need a real service-account private key.
         state.app = initializeApp({ projectId: env.FIREBASE_PROJECT_ID });
       } else {
         state.app = initializeApp({
@@ -88,6 +89,18 @@ export function getDb(): Firestore {
   return initFirestore();
 }
 
+/**
+ * Plan Spec singleton — lazy Proxy so `import { db }` always resolves the same instance.
+ * Prefer `getDb()` in new code; `db` satisfies Phase 6 export wording.
+ */
+export const db: Firestore = new Proxy({} as Firestore, {
+  get(_target, prop, _receiver) {
+    const real = getDb();
+    const value = Reflect.get(real, prop, real) as unknown;
+    return typeof value === 'function' ? (value as (...args: unknown[]) => unknown).bind(real) : value;
+  },
+});
+
 export function isFirestoreInitialized(): boolean {
   return state.db !== null;
 }
@@ -102,8 +115,8 @@ export async function checkFirestoreHealth(): Promise<FirestoreHealth> {
   }
 
   try {
-    const db = initFirestore();
-    const ref = db.collection(COLLECTIONS.META).doc('health');
+    const firestore = initFirestore();
+    const ref = firestore.collection(COLLECTIONS.META).doc('health');
     await Promise.race([
       ref.get(),
       new Promise((_, reject) => {
@@ -120,8 +133,10 @@ export async function checkFirestoreHealth(): Promise<FirestoreHealth> {
   }
 }
 
-/** Test helper — reset singleton between tests. */
-export function _resetFirestoreForTests(): void {
+/** Test helper — reset singleton between emulator test runs. */
+export async function _resetFirestoreForTests(): Promise<void> {
+  const apps = getApps();
+  await Promise.all(apps.map((app) => deleteApp(app)));
   state.app = null;
   state.db = null;
   state.initAttempted = false;

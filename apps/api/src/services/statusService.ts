@@ -1,14 +1,8 @@
 import { cacheManager } from '../cache/cacheManager.js';
+import { listProviderHealthFromBreakers } from '../lib/breakerRegistry.js';
 import type { ProviderHealth } from '../types/domain.js';
 
 const startedAt = Date.now();
-
-/** In-memory breaker snapshots (enriched from Firestore in Phase 13). */
-const providerSnapshots = new Map<string, ProviderHealth>();
-
-export function registerProviderHealth(snapshot: ProviderHealth): void {
-  providerSnapshots.set(snapshot.provider, snapshot);
-}
 
 export async function getStatus(): Promise<{
   providers: ProviderHealth[];
@@ -17,7 +11,7 @@ export async function getStatus(): Promise<{
 }> {
   const stats = cacheManager.getL1Stats();
   return {
-    providers: Array.from(providerSnapshots.values()),
+    providers: listProviderHealthFromBreakers(),
     cache: {
       l1Keys: stats.l1Keys,
       hitRatio: stats.hitRatio,

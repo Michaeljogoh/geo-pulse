@@ -7,12 +7,12 @@ import { CircuitBreaker } from '../lib/circuitBreaker.js';
 import type { CircuitBreakerSnapshot } from '../lib/circuitBreaker.js';
 import type { ProviderHealth } from '../types/domain.js';
 
-/** Provider ids reported by GET /api/status (Section 10 / Phase 11). */
+/** Provider ids included in GET /api/status. */
 export const STATUS_PROVIDER_NAMES = [
   'ipapi',
   'ipwho',
   'coingecko',
-  'cryptopanic',
+  'cryptocompare',
   'gnews',
 ] as const;
 
@@ -49,8 +49,8 @@ function toProviderHealth(provider: string, snap: CircuitBreakerSnapshot): Provi
 }
 
 /**
- * Phase 11 — in-memory breaker snapshots for known providers.
- * Phase 13 will enrich timestamps from Firestore `provider_health`.
+ * In-memory circuit-breaker snapshots for known providers.
+ * Timestamps may be enriched from Firestore `provider_health`.
  */
 export function listProviderHealthFromBreakers(): ProviderHealth[] {
   for (const name of STATUS_PROVIDER_NAMES) {

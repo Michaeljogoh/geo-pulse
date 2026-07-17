@@ -36,7 +36,7 @@ export function resolveClientIp(req: Request): string {
 }
 
 /**
- * Resolve the IP used for geo lookup (Section 9.2 / 9.6).
+ * Resolve the IP used for geo lookup.
  * Private/loopback caller IPs are substituted with DEMO_PUBLIC_IP (never an error).
  */
 export function resolveLookupIp(

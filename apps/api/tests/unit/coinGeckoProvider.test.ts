@@ -7,7 +7,7 @@ import {
 } from '../../src/providers/market/coinGeckoProvider.js';
 import { coinGeckoMarketsFixture, makeMarketCoin } from '../msw/handlers.js';
 
-describe('CoinGecko mappers (Section 12.3)', () => {
+describe('CoinGecko mappers', () => {
   it('maps a markets item to Coin', () => {
     const coin = mapCoinGeckoMarket(coinGeckoMarketsFixture[0], 'eur');
     expect(coin).toMatchObject({
@@ -60,7 +60,7 @@ describe('CoinGecko mappers (Section 12.3)', () => {
   });
 });
 
-describe('CoinGeckoProvider.getMarketsByIds (Phase 15)', () => {
+describe('CoinGeckoProvider.getMarketsByIds', () => {
   it('is declared on the MarketProvider interface via class', async () => {
     const { CoinGeckoProvider } = await import('../../src/providers/market/coinGeckoProvider.js');
     expect(typeof new CoinGeckoProvider().getMarketsByIds).toBe('function');

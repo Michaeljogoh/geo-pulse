@@ -1,4 +1,4 @@
-/** Section 10 — Firestore collection names (single source of truth). */
+/** Firestore collection names. */
 export const COLLECTIONS = {
   CACHE: 'cache',
   REQUEST_LOGS: 'request_logs',
@@ -14,7 +14,7 @@ export const PROVIDER_IDS = [
   'ipapi',
   'ipwho',
   'coingecko',
-  'cryptopanic',
+  'cryptocompare',
   'gnews',
 ] as const;
 

@@ -41,7 +41,7 @@ function mockDecoded(overrides: Partial<DecodedIdToken> = {}): DecodedIdToken {
   } as DecodedIdToken;
 }
 
-describe('Firebase Auth (Phase 14)', () => {
+describe('Firebase Auth', () => {
   const app = createApp();
 
   beforeEach(() => {

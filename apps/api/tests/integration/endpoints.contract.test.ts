@@ -10,7 +10,7 @@ afterEach(() => {
   _resetCircuitBreakersForTests();
 });
 
-describe('API endpoint contracts (Section 9)', () => {
+describe('API endpoint contracts', () => {
   const app = createApp();
 
   describe('9.1 GET /health', () => {

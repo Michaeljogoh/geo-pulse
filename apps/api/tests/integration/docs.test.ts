@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
 import { loadOpenApiDocument } from '../../src/docs/swagger.js';
 
-/** Section 9 routes that must appear in the OpenAPI paths map. */
+/** Routes that must appear in the OpenAPI paths map. */
 const REQUIRED_PATHS = [
   '/health',
   '/api/geo',
@@ -34,7 +34,7 @@ const REQUIRED_SCHEMAS = [
   'ErrorCode',
 ] as const;
 
-describe('OpenAPI + Swagger UI (Phase 12)', () => {
+describe('OpenAPI + Swagger UI', () => {
   const app = createApp();
 
   it('parses as OpenAPI 3.1 with required paths and domain schemas', () => {

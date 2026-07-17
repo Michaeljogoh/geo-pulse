@@ -1,6 +1,6 @@
 import type { Coin, IpIntelligence, NewsItem, TrendingCoin } from '../types/domain.js';
 
-/** Phase 7+ — provider interfaces (Dependency Inversion). */
+/** Upstream provider contracts used by services. */
 
 export interface IpIntelligenceProvider {
   readonly name: string;
@@ -11,7 +11,7 @@ export interface MarketProvider {
   readonly name: string;
   getMarkets(vs: string, limit: number): Promise<Coin[]>;
   getTrending(): Promise<TrendingCoin[]>;
-  /** Phase 15 — fetch specific coins by CoinGecko ids. */
+  /** Fetch specific coins by CoinGecko ids. */
   getMarketsByIds(ids: string[], vs: string): Promise<Coin[]>;
 }
 

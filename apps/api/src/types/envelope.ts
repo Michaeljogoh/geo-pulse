@@ -1,9 +1,9 @@
 /**
- * Standard response envelope (plan Section 7).
+ * Standard API response envelope.
  * Every endpoint except /health, /docs, /openapi.json returns ApiResponse<T>.
  */
 
-/** Error taxonomy codes (plan Section 8). */
+/** Stable error codes returned in the API envelope. */
 export type ErrorCode =
   | 'VALIDATION_ERROR'
   | 'UNAUTHENTICATED'

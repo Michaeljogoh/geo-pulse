@@ -34,7 +34,7 @@ const envSchema = z.object({
     (v) => (v === '' || v === undefined || v === null ? undefined : v),
     z.string().min(1).optional(),
   ),
-  CRYPTOPANIC_TOKEN: z.string().min(1),
+  CRYPTOCOMPARE_API_KEY: z.string().min(1),
   GNEWS_API_KEY: z.preprocess(
     (v) => (v === '' || v === undefined || v === null ? undefined : v),
     z.string().min(1).optional(),

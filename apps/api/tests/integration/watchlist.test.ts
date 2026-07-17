@@ -104,7 +104,7 @@ function useCoinGeckoByIds(): void {
   );
 }
 
-describe('GET/PUT/DELETE /api/watchlist (Phase 15)', () => {
+describe('GET/PUT/DELETE /api/watchlist', () => {
   const app = createApp();
 
   beforeEach(() => {

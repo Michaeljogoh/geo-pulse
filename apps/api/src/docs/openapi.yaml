@@ -166,7 +166,7 @@ paths:
     get:
       tags: [News]
       summary: Crypto news
-      description: CryptoPanic primary; GNews regional fallback when configured.
+      description: CryptoCompare primary; GNews regional fallback when configured.
       operationId: getNews
       parameters:
         - name: country
@@ -209,7 +209,7 @@ paths:
                 meta:
                   requestId: b1f0c2a4-0000-4000-8000-000000000003
                   source: live
-                  provider: cryptopanic
+                  provider: cryptocompare
                   latencyMs: 90
                   cached: false
                 error: null

@@ -68,7 +68,7 @@ describe('Firestore fail-open (no emulator)', () => {
   });
 });
 
-describe.runIf(usingFirestoreEmulator())('Firestore emulator round-trip (Phase 6 DoD)', () => {
+describe.runIf(usingFirestoreEmulator())('Firestore emulator round-trip', () => {
   beforeAll(async () => {
     await _resetFirestoreForTests();
     initFirestore();

@@ -1,6 +1,6 @@
 import type { NetworkType } from '../types/domain.js';
 
-/** Section 12.4 — deterministic networkType derivation. */
+/** Derive networkType from proxy/hosting/mobile flags (priority order). */
 export function deriveNetworkType(flags: {
   isMobile: boolean | null;
   isHosting: boolean | null;
@@ -16,7 +16,7 @@ export function deriveNetworkType(flags: {
   return 'unknown';
 }
 
-/** Section 12.4 — confidence in [0, 1]. */
+/** Geo lookup confidence score in [0, 1] from available fields. */
 export function deriveConfidence(input: {
   country: string | null;
   city: string | null;

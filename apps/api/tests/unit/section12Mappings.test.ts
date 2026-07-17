@@ -16,15 +16,15 @@ import {
 } from '../../src/providers/market/coinGeckoProvider.js';
 import {
   deriveSentimentFromVotes,
-  mapCryptoPanicPost,
-} from '../../src/providers/news/cryptoPanicProvider.js';
+  mapCryptoCompareArticle,
+} from '../../src/providers/news/cryptoCompareProvider.js';
 import { mapGNewsArticle } from '../../src/providers/news/gNewsProvider.js';
 
 /**
- * Section 12 golden tests — every transform in the plan mapping tables.
+ * Golden tests for upstream → domain mappings.
  * Missing fields → null (or domain-required defaults where noted).
  */
-describe('Section 12.1 ip-api.com → IpIntelligence', () => {
+describe('ip-api.com → IpIntelligence', () => {
   const raw = {
     status: 'success' as const,
     query: '1.2.3.4',
@@ -100,7 +100,7 @@ describe('Section 12.1 ip-api.com → IpIntelligence', () => {
   });
 });
 
-describe('Section 12.2 ipwho.is → IpIntelligence', () => {
+describe('ipwho.is → IpIntelligence', () => {
   const raw = {
     success: true,
     ip: '8.8.8.8',
@@ -153,7 +153,7 @@ describe('Section 12.2 ipwho.is → IpIntelligence', () => {
   });
 });
 
-describe('Section 12.3 CoinGecko → Coin / TrendingCoin', () => {
+describe('CoinGecko → Coin / TrendingCoin', () => {
   it('maps /coins/markets item with uppercase symbol and vs currency', () => {
     const coin = mapCoinGeckoMarket(
       {
@@ -250,7 +250,7 @@ describe('Section 12.3 CoinGecko → Coin / TrendingCoin', () => {
   });
 });
 
-describe('Section 12.4 networkType + confidence', () => {
+describe('networkType + confidence', () => {
   it('applies priority: mobile → datacenter → proxy_vpn → residential → unknown', () => {
     expect(
       deriveNetworkType({ isMobile: true, isHosting: true, isProxy: true }),
@@ -319,35 +319,38 @@ describe('Section 12.4 networkType + confidence', () => {
   });
 });
 
-describe('Section 12.5 CryptoPanic → NewsItem', () => {
-  it('maps results[] fields; imageUrl always null; sentiment from votes', () => {
+describe('CryptoCompare → NewsItem', () => {
+  it('maps Data[] fields; imageUrl from imageurl; sentiment from votes', () => {
     expect(
-      mapCryptoPanicPost({
+      mapCryptoCompareArticle({
         title: 'Headline',
         url: 'https://example.com/a',
-        published_at: '2026-07-16T10:00:00Z',
-        source: { title: 'CoinDesk' },
-        votes: { positive: 5, negative: 1 },
+        published_on: 1721124000,
+        imageurl: 'https://example.com/img.png',
+        source: 'coindesk',
+        source_info: { name: 'CoinDesk' },
+        upvotes: '5',
+        downvotes: '1',
       }),
     ).toEqual({
       title: 'Headline',
       url: 'https://example.com/a',
       source: 'CoinDesk',
-      publishedAt: '2026-07-16T10:00:00Z',
+      publishedAt: '2024-07-16T10:00:00.000Z',
       sentiment: 'positive',
-      imageUrl: null,
+      imageUrl: 'https://example.com/img.png',
     });
   });
 
   it('derives sentiment positive / negative / neutral; null when votes absent', () => {
-    expect(deriveSentimentFromVotes({ positive: 3, negative: 1 })).toBe('positive');
-    expect(deriveSentimentFromVotes({ positive: 1, negative: 4 })).toBe('negative');
-    expect(deriveSentimentFromVotes({ positive: 2, negative: 2 })).toBe('neutral');
-    expect(deriveSentimentFromVotes(null)).toBeNull();
+    expect(deriveSentimentFromVotes(3, 1)).toBe('positive');
+    expect(deriveSentimentFromVotes(1, 4)).toBe('negative');
+    expect(deriveSentimentFromVotes(2, 2)).toBe('neutral');
+    expect(deriveSentimentFromVotes(0, 0)).toBeNull();
   });
 });
 
-describe('Section 12.6 GNews → NewsItem', () => {
+describe('GNews → NewsItem', () => {
   it('maps articles[]; sentiment always null; image → imageUrl', () => {
     expect(
       mapGNewsArticle({

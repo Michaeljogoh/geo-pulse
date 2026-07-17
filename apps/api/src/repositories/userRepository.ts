@@ -7,7 +7,7 @@ import type { AuthUser } from '../types/domain.js';
 import type { UserDocument } from '../types/firestore.js';
 
 /**
- * Upsert `users/{uid}` on login (Section 10 / Phase 14).
+ * Upsert `users/{uid}` on login.
  * Sets createdAt once; always updates lastLoginAt. Fail-open.
  */
 export async function upsertOnLogin(user: AuthUser): Promise<void> {

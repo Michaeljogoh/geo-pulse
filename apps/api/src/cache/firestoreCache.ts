@@ -8,7 +8,7 @@ import type { CacheDocument } from '../types/firestore.js';
 import type { CacheHit, CacheSetMeta, CacheStore } from './types.js';
 
 /**
- * L2 Firestore cache — `cache/{sha256(logicalKey)}` (Section 10).
+ * L2 Firestore cache — `cache/{sha256(logicalKey)}`.
  * Fail-open on any error so cache never breaks the request path.
  */
 export class FirestoreCache implements CacheStore {

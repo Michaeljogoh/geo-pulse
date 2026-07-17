@@ -4,7 +4,6 @@ import { asyncHandler } from '../lib/asyncHandler.js';
 import { ok } from '../lib/envelope.js';
 import { getStatus } from '../services/statusService.js';
 
-/** Section 9.7 — GET /api/status */
 export const statusRouter = Router();
 
 statusRouter.get(

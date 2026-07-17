@@ -84,7 +84,7 @@ function sectionFromSettled<T>(
 }
 
 /**
- * Section 9.6 / Phase 10 — geo first, then market/trending/news in parallel.
+ * Build dashboard: geo first, then market/trending/news in parallel.
  * Always resolves a payload; partial failures set degraded=true.
  */
 export async function getDashboard(ip: string): Promise<DashboardPayload> {

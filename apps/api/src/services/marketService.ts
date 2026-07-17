@@ -6,7 +6,7 @@ import { getMarketProvider } from '../providers/market/index.js';
 import { pickGainersLosers } from '../providers/market/coinGeckoProvider.js';
 import type { Coin, TrendingResult } from '../types/domain.js';
 
-/** Phase 8 — market + trending service. */
+/** Cached market and trending lookups. */
 export async function getMarket(vs: string, limit: number): Promise<CacheResult<Coin[]>> {
   const currency = vs.toLowerCase();
   return cacheManager.getOrSet(`market:${currency}:${limit}`, CACHE_TTL_MARKET_S, async () => {

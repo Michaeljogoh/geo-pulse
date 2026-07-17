@@ -37,7 +37,7 @@ const trendingResponseSchema = z.object({
 });
 
 export function mapCoinGeckoMarket(raw: unknown, vs: string): Coin {
-  // Section 12.3 — /coins/markets item → Coin (symbol uppercased; currency from vs)
+  // /coins/markets item → Coin (symbol uppercased; currency from vs).
   const parsed = coinMarketSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid CoinGecko market item', parsed.error.issues);
@@ -64,7 +64,7 @@ export function mapCoinGeckoMarket(raw: unknown, vs: string): Coin {
 }
 
 export function mapCoinGeckoTrendingItem(raw: unknown): TrendingCoin {
-  // Section 12.3 — /search/trending coins[].item → TrendingCoin
+  // /search/trending coins[].item → TrendingCoin.
   const parsed = trendingItemSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid CoinGecko trending item', parsed.error.issues);
@@ -93,7 +93,7 @@ export function pickGainersLosers(coins: Coin[]): { gainers: Coin[]; losers: Coi
   return { gainers, losers };
 }
 
-/** Phase 8 — CoinGecko market provider. */
+/** CoinGecko market + trending provider. */
 export class CoinGeckoProvider implements MarketProvider {
   readonly name = 'coingecko';
   private readonly client = createHttpClient({
@@ -134,7 +134,7 @@ export class CoinGeckoProvider implements MarketProvider {
   }
 
   /**
-   * Phase 15 — `GET /coins/markets?vs_currency={vs}&ids={csv}`.
+   * Fetch specific coins by CoinGecko ids (`GET /coins/markets?ids=`).
    * Returns only coins CoinGecko knows; missing ids are omitted (caller marks unavailable).
    */
   async getMarketsByIds(ids: string[], vs: string): Promise<Coin[]> {

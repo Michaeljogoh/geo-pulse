@@ -17,7 +17,7 @@ afterEach(() => {
   cacheManager._flushL1ForTests();
 });
 
-describe('GET /api/status (Phase 11)', () => {
+describe('GET /api/status', () => {
   const app = createApp();
 
   beforeEach(() => {

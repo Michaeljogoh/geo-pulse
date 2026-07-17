@@ -1,7 +1,7 @@
 import type { Timestamp } from 'firebase-admin/firestore';
 
 /**
- * Section 10 — Firestore document shapes (Native mode).
+ * Firestore document shapes (Native mode).
  * Timestamps are stored as Firestore Timestamp; ISO strings used at the API boundary.
  */
 

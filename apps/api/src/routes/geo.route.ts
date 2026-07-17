@@ -8,7 +8,6 @@ import { ipQuerySchema, type IpQuery } from '../lib/querySchemas.js';
 import { validateQuery } from '../middleware/validate.js';
 import { getGeo } from '../services/geoService.js';
 
-/** Section 9.2 — GET /api/geo */
 export const geoRouter = Router();
 
 geoRouter.get(

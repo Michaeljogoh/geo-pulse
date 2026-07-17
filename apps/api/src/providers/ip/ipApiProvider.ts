@@ -36,14 +36,14 @@ const ipApiSchema = z.object({
 });
 
 export function mapIpApiResponse(raw: unknown): IpIntelligence {
-  // Section 12.1 — only listed fields; missing → null; status !== success → UPSTREAM_ERROR
+  // Map listed fields only; missing → null; status !== success → UPSTREAM_ERROR.
   const parsed = ipApiSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid ip-api response shape', parsed.error.issues);
   }
   const data = parsed.data;
   if (data.status !== 'success') {
-    // Section 13 — do not echo raw upstream bodies to clients (details stay server-side).
+    // Keep upstream bodies in AppError.details for logs only — never send to clients.
     throw AppError.upstreamError('ip-api lookup failed', {
       reason: data.message ?? 'status_fail',
     });
@@ -85,7 +85,7 @@ export function mapIpApiResponse(raw: unknown): IpIntelligence {
   };
 }
 
-/** Phase 7 — ip-api.com provider. */
+/** ip-api.com IP intelligence provider. */
 export class IpApiProvider implements IpIntelligenceProvider {
   readonly name = 'ipapi';
   private readonly client = createHttpClient({ name: this.name, timeoutMs: HTTP_TIMEOUT_MS });

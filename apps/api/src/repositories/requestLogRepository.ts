@@ -6,7 +6,7 @@ import { logger } from '../lib/logger.js';
 import type { RequestLogInput } from '../types/firestore.js';
 
 /**
- * Fire-and-forget write to `request_logs/{autoId}` (Section 10 / Phase 13).
+ * Fire-and-forget write to `request_logs/{autoId}`.
  * Never throws to callers — fail-open.
  */
 export async function createRequestLog(log: RequestLogInput): Promise<void> {

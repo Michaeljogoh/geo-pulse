@@ -12,7 +12,6 @@ import {
 import { validateQuery } from '../middleware/validate.js';
 import { getMarket, getTrending } from '../services/marketService.js';
 
-/** Section 9.3 / 9.4 — GET /api/market, GET /api/trending */
 export const marketRouter = Router();
 
 marketRouter.get(

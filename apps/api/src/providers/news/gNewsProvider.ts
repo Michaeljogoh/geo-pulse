@@ -25,7 +25,7 @@ const responseSchema = z.object({
 });
 
 export function mapGNewsArticle(raw: unknown): NewsItem {
-  // Section 12.6 — articles[] → NewsItem; sentiment always null; image → imageUrl
+  // articles[] → NewsItem; sentiment always null; image → imageUrl.
   const parsed = articleSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid GNews article', parsed.error.issues);
@@ -41,7 +41,7 @@ export function mapGNewsArticle(raw: unknown): NewsItem {
   };
 }
 
-/** Phase 9 — GNews regional fallback provider. */
+/** GNews regional fallback provider. */
 export class GNewsProvider implements NewsProvider {
   readonly name = 'gnews';
   private readonly client = createHttpClient({

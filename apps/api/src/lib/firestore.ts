@@ -32,7 +32,7 @@ export function isFirestoreDisabledForTests(): boolean {
 }
 
 /**
- * Lazy-init Firebase Admin + Firestore singleton (Phase 6).
+ * Lazy-init Firebase Admin + Firestore singleton.
  * Safe to call multiple times (double-init guarded).
  */
 export function initFirestore(): Firestore {
@@ -91,7 +91,7 @@ export function getDb(): Firestore {
 
 /**
  * Plan Spec singleton — lazy Proxy so `import { db }` always resolves the same instance.
- * Prefer `getDb()` in new code; `db` satisfies Phase 6 export wording.
+ * Prefer `getDb()` in new code; `db` is a lazy proxy for convenience.
  */
 export const db: Firestore = new Proxy({} as Firestore, {
   get(_target, prop, _receiver) {

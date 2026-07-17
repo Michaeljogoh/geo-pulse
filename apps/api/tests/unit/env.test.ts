@@ -10,7 +10,7 @@ const validRaw: NodeJS.ProcessEnv = {
   FIREBASE_PROJECT_ID: 'geopulse',
   FIREBASE_CLIENT_EMAIL: 'sa@geopulse.iam.gserviceaccount.com',
   FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\\nABC\\n-----END PRIVATE KEY-----\\n',
-  CRYPTOPANIC_TOKEN: 'token',
+  CRYPTOCOMPARE_API_KEY: 'token',
   CACHE_ENABLED: 'true',
 };
 
@@ -26,7 +26,7 @@ describe('parseEnv', () => {
     expect(env.FIREBASE_PROJECT_ID).toBe('geopulse');
     expect(env.FIREBASE_PRIVATE_KEY).toContain('\n');
     expect(env.FIREBASE_PRIVATE_KEY).not.toContain('\\n');
-    expect(env.CRYPTOPANIC_TOKEN).toBe('token');
+    expect(env.CRYPTOCOMPARE_API_KEY).toBe('token');
     expect(env.CACHE_ENABLED).toBe(true);
     expect(env.IP_PROVIDER).toBe('ipapi');
     expect(Object.isFrozen(env)).toBe(true);

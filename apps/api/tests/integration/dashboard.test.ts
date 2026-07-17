@@ -10,7 +10,7 @@ import {
   coinGeckoHandlers,
   coinGeckoMarketsFixture,
   coinGeckoTrendingFixture,
-  cryptoPanicFixture,
+  cryptoCompareFixture,
   gNewsFixture,
   ipProviderHandlers,
 } from '../msw/handlers.js';
@@ -25,14 +25,14 @@ function useHappyPathHandlers(): void {
   server.use(
     ...ipProviderHandlers,
     ...coinGeckoHandlers,
-    http.get('https://cryptopanic.com/api/v1/posts/', () =>
-      HttpResponse.json(cryptoPanicFixture),
+    http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
+      HttpResponse.json(cryptoCompareFixture),
     ),
     http.get('https://gnews.io/api/v4/search', () => HttpResponse.json(gNewsFixture)),
   );
 }
 
-describe('GET /api/dashboard (Phase 10)', () => {
+describe('GET /api/dashboard', () => {
   const app = createApp();
 
   beforeEach(() => {
@@ -83,7 +83,7 @@ describe('GET /api/dashboard (Phase 10)', () => {
         http.get('https://api.coingecko.com/api/v3/search/trending', () =>
           HttpResponse.json(coinGeckoTrendingFixture),
         ),
-        http.get('https://cryptopanic.com/api/v1/posts/', () =>
+        http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
           HttpResponse.json({ error: 'down' }, { status: 500 }),
         ),
         http.get('https://gnews.io/api/v4/search', () =>
@@ -124,8 +124,8 @@ describe('GET /api/dashboard (Phase 10)', () => {
         HttpResponse.json({ success: false, message: 'Invalid IP' }),
       ),
       ...coinGeckoHandlers,
-      http.get('https://cryptopanic.com/api/v1/posts/', () =>
-        HttpResponse.json(cryptoPanicFixture),
+      http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
+        HttpResponse.json(cryptoCompareFixture),
       ),
       http.get('https://gnews.io/api/v4/search', () => HttpResponse.json(gNewsFixture)),
     );

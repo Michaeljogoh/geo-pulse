@@ -1,4 +1,4 @@
-/** Global configuration values — single source of truth (plan Section 3). */
+/** Shared runtime constants (timeouts, TTLs, limits). */
 
 export const HTTP_TIMEOUT_MS = 5000;
 export const HTTP_TIMEOUT_NEWS_MS = 8000;
@@ -23,8 +23,8 @@ export const RATE_LIMIT_MAX = 60;
 export const MARKET_DEFAULT_LIMIT = 20;
 export const MARKET_MAX_LIMIT = 100;
 
-/** Documented demo IP used when the caller address is private/loopback (Section 9.2). */
+/** Demo public IP used when the caller address is private/loopback. */
 export const DEMO_PUBLIC_IP = '8.8.8.8';
 
-/** Max coins on a user watchlist (Phase 15). */
+/** Max coins on a user watchlist. */
 export const WATCHLIST_MAX_ITEMS = 50;

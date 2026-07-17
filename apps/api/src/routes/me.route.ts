@@ -6,7 +6,6 @@ import { AppError } from '../lib/errors.js';
 import { requireAuth } from '../middleware/auth.js';
 import { upsertOnLogin } from '../repositories/userRepository.js';
 
-/** Section 9.9 — GET /api/me (protected). */
 export const meRouter = Router();
 
 meRouter.get(

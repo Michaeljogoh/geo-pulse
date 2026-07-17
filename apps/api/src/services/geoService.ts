@@ -14,8 +14,8 @@ interface CachedGeo {
 }
 
 /**
- * Phase 7 — geo lookup via cache + IP provider chain.
- * Private/loopback substitution is handled at the route layer (Section 9.2).
+ * Geo lookup via cache + IP provider chain.
+ * Private/loopback substitution is handled at the route layer.
  */
 export async function getGeo(ip: string): Promise<GeoLookupResult> {
   const cached = await cacheManager.getOrSet<CachedGeo>(

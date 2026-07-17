@@ -7,7 +7,6 @@ import { ipQuerySchema, type IpQuery } from '../lib/querySchemas.js';
 import { validateQuery } from '../middleware/validate.js';
 import { getDashboard } from '../services/dashboardService.js';
 
-/** Section 9.6 — GET /api/dashboard */
 export const dashboardRouter = Router();
 
 dashboardRouter.get(

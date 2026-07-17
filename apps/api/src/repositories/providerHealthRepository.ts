@@ -10,7 +10,7 @@ const UPSERT_THROTTLE_MS = 10_000;
 const lastWriteAt = new Map<string, number>();
 
 /**
- * Throttled upsert to `provider_health/{provider}` (Section 10 / Phase 13).
+ * Throttled upsert to `provider_health/{provider}`.
  * Fail-open.
  */
 export async function upsertProviderHealth(snapshot: ProviderHealthInput): Promise<void> {
@@ -48,7 +48,7 @@ export async function upsertProviderHealth(snapshot: ProviderHealthInput): Promi
 }
 
 /**
- * Read persisted health docs (Phase 11 enrichment). Fail-open → [].
+ * Read persisted health docs for status enrichment. Fail-open → [].
  */
 export async function listPersistedProviderHealth(): Promise<ProviderHealthDocument[]> {
   try {

@@ -25,7 +25,7 @@ function newsCacheKey(params: NewsServiceParams): string {
   return `news:${country}:${symbols}:${lang}`;
 }
 
-/** Phase 9 — news service with Section 9.5 cache key. */
+/** Cached news lookup keyed by country, symbols, and lang. */
 export async function getNews(
   params: NewsServiceParams,
 ): Promise<CacheResult<NewsItem[]> & { provider: string }> {

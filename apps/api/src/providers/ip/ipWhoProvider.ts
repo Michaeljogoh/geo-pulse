@@ -51,7 +51,10 @@ export function mapIpWhoResponse(raw: unknown): IpIntelligence {
   }
   const data = parsed.data;
   if (data.success === false) {
-    throw AppError.upstreamError(data.message ?? 'ipwho.is lookup failed');
+    // Section 13 — do not echo raw upstream bodies to clients (details stay server-side).
+    throw AppError.upstreamError('ipwho.is lookup failed', {
+      reason: data.message ?? 'success_false',
+    });
   }
 
   const isProxy = null;

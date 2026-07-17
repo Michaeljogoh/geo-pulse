@@ -66,7 +66,7 @@ describe('AppError taxonomy (Section 8)', () => {
     expect(err.isOperational).toBe(code !== 'INTERNAL');
   });
 
-  it('toApiError omits details when absent and includes them when present', () => {
+  it('toApiError includes details only for client-safe codes (Section 13)', () => {
     expect(AppError.notFound().toApiError()).toEqual({
       code: 'NOT_FOUND',
       message: 'Resource not found',
@@ -75,6 +75,26 @@ describe('AppError taxonomy (Section 8)', () => {
       code: 'VALIDATION_ERROR',
       message: 'Validation failed',
       details: [{ path: 'ip' }],
+    });
+    // Upstream details must not reach the client envelope
+    expect(
+      AppError.upstreamError('Upstream request failed', {
+        body: { secret: 'nope' },
+        status: 500,
+      }).toApiError(),
+    ).toEqual({
+      code: 'UPSTREAM_ERROR',
+      message: 'Upstream request failed',
+    });
+    expect(
+      AppError.upstreamTimeout('timed out', { providerName: 'ipapi' }).toApiError(),
+    ).toEqual({
+      code: 'UPSTREAM_TIMEOUT',
+      message: 'timed out',
+    });
+    expect(AppError.internal('boom', { stack: 'x' }).toApiError()).toEqual({
+      code: 'INTERNAL',
+      message: 'boom',
     });
   });
 

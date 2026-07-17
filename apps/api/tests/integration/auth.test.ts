@@ -27,7 +27,7 @@ function mockDecoded(overrides: Partial<DecodedIdToken> = {}): DecodedIdToken {
     email: 'user@example.com',
     name: 'Test User',
     picture: 'https://example.com/avatar.png',
-    aud: 'geoip-crypto-intel-test',
+    aud: 'geopulse-test',
     auth_time: 1,
     exp: 9_999_999_999,
     firebase: {
@@ -35,7 +35,7 @@ function mockDecoded(overrides: Partial<DecodedIdToken> = {}): DecodedIdToken {
       sign_in_provider: 'password',
     },
     iat: 1,
-    iss: 'https://securetoken.google.com/geoip-crypto-intel-test',
+    iss: 'https://securetoken.google.com/geopulse-test',
     sub: 'user-abc',
     ...overrides,
   } as DecodedIdToken;

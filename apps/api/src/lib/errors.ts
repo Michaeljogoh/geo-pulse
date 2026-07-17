@@ -17,12 +17,25 @@ export const ERROR_HTTP_STATUS = {
  * Operational application error.
  * Carries `{ code, httpStatus, message, details?, isOperational }`.
  * Mapped to the standard envelope by `errorHandler`.
+ *
+ * Section 13: never reflect raw upstream error bodies to clients —
+ * only client-safe codes expose `details` via `toApiError()`.
  */
 export class AppError extends Error {
   readonly code: ErrorCode;
   readonly httpStatus: number;
   readonly details?: unknown;
   readonly isOperational: boolean;
+
+  /** Codes whose `details` are safe to return in the API envelope. */
+  private static readonly CLIENT_DETAILS_CODES: ReadonlySet<ErrorCode> = new Set([
+    'VALIDATION_ERROR',
+    'CIRCUIT_OPEN',
+    'UNAUTHENTICATED',
+    'FORBIDDEN',
+    'NOT_FOUND',
+    'RATE_LIMITED',
+  ]);
 
   constructor(
     code: ErrorCode,
@@ -41,10 +54,12 @@ export class AppError extends Error {
   }
 
   toApiError(): ApiError {
+    const includeDetails =
+      this.details !== undefined && AppError.CLIENT_DETAILS_CODES.has(this.code);
     return {
       code: this.code,
       message: this.message,
-      ...(this.details !== undefined ? { details: this.details } : {}),
+      ...(includeDetails ? { details: this.details } : {}),
     };
   }
 

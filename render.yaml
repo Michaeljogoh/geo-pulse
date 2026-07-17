@@ -1,7 +1,7 @@
-# Optional Render Blueprint (Phase 19). Set secrets in the Render dashboard — never commit them.
+# Optional Render Blueprint. Set secrets in the Render dashboard — never commit them.
 services:
   - type: web
-    name: geoip-crypto-intel-api
+    name: geopulse-api
     runtime: docker
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: ./apps/api

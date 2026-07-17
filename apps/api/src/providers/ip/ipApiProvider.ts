@@ -43,7 +43,10 @@ export function mapIpApiResponse(raw: unknown): IpIntelligence {
   }
   const data = parsed.data;
   if (data.status !== 'success') {
-    throw AppError.upstreamError(data.message ?? 'ip-api lookup failed');
+    // Section 13 — do not echo raw upstream bodies to clients (details stay server-side).
+    throw AppError.upstreamError('ip-api lookup failed', {
+      reason: data.message ?? 'status_fail',
+    });
   }
 
   const isMobile = data.mobile ?? null;

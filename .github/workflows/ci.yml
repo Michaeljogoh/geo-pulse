@@ -53,4 +53,4 @@ jobs:
     needs: [api]
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t geoip-api ./apps/api
+      - run: docker build -t geopulse-api ./apps/api

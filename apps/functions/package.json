@@ -1,8 +1,8 @@
 {
-  "name": "geoip-crypto-intel-functions",
+  "name": "geopulse-functions",
   "version": "1.0.0",
   "private": true,
-  "description": "Scheduled Cloud Functions — cache warming + request log pruning",
+  "description": "GeoPulse — scheduled Cloud Functions",
   "engines": {
     "node": "22"
   },

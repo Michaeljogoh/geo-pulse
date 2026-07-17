@@ -36,6 +36,7 @@ const ipApiSchema = z.object({
 });
 
 export function mapIpApiResponse(raw: unknown): IpIntelligence {
+  // Section 12.1 — only listed fields; missing → null; status !== success → UPSTREAM_ERROR
   const parsed = ipApiSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid ip-api response shape', parsed.error.issues);

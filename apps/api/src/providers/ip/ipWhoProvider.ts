@@ -44,6 +44,7 @@ const ipWhoSchema = z.object({
 });
 
 export function mapIpWhoResponse(raw: unknown): IpIntelligence {
+  // Section 12.2 — nested fields; isProxy/isHosting/isMobile always null; asnName ← connection.isp
   const parsed = ipWhoSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid ipwho.is response shape', parsed.error.issues);

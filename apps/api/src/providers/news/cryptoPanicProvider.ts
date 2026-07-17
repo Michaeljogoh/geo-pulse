@@ -44,6 +44,7 @@ export function deriveSentimentFromVotes(
 }
 
 export function mapCryptoPanicPost(raw: unknown): NewsItem {
+  // Section 12.5 — results[] → NewsItem; imageUrl always null; sentiment from votes
   const parsed = postSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid CryptoPanic post', parsed.error.issues);

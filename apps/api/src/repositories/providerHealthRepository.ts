@@ -5,7 +5,7 @@ import { getDb, initFirestore } from '../lib/firestore.js';
 import { logger } from '../lib/logger.js';
 import type { ProviderHealthDocument, ProviderHealthInput } from '../types/firestore.js';
 
-/** At most one write per provider per window (avoids write amplification). */
+/** At most one write per provider per 10s (avoids write amplification). */
 const UPSERT_THROTTLE_MS = 10_000;
 const lastWriteAt = new Map<string, number>();
 
@@ -44,6 +44,20 @@ export async function upsertProviderHealth(snapshot: ProviderHealthInput): Promi
       { err, provider: snapshot.provider },
       'provider health write failed (fail-open)',
     );
+  }
+}
+
+/**
+ * Read persisted health docs (Phase 11 enrichment). Fail-open → [].
+ */
+export async function listPersistedProviderHealth(): Promise<ProviderHealthDocument[]> {
+  try {
+    initFirestore();
+    const snap = await getDb().collection(COLLECTIONS.PROVIDER_HEALTH).get();
+    return snap.docs.map((d) => d.data() as ProviderHealthDocument);
+  } catch (err) {
+    logger.warn({ err }, 'provider health list failed (fail-open)');
+    return [];
   }
 }
 

@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { env } from '../config/env.js';
 import { AppError } from '../lib/errors.js';
+import { verifyFirebaseIdToken } from '../lib/firebaseAuth.js';
 import type { AuthUser } from '../types/domain.js';
 
 /** Fixed local-only user when AUTH_ENABLED=false (never in production). */
@@ -19,6 +20,14 @@ function extractBearerToken(header: string | undefined): string | null {
     return null;
   }
   return token.trim();
+}
+
+async function authenticateBearer(token: string): Promise<AuthUser> {
+  try {
+    return await verifyFirebaseIdToken(token);
+  } catch {
+    throw AppError.unauthenticated('Invalid or expired Firebase ID token');
+  }
 }
 
 /**
@@ -43,9 +52,8 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    // Phase 14: verify with admin.auth().verifyIdToken(token)
-    // Until Firebase Admin is wired (Phase 6/14), tokens cannot be verified.
-    next(AppError.unauthenticated('Token verification not configured (Phase 14)'));
+    res.locals.user = await authenticateBearer(token);
+    next();
   } catch (err) {
     next(err);
   }
@@ -68,7 +76,11 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    // Phase 14 will verify and set res.locals.user; ignore invalid tokens for optional.
+    try {
+      res.locals.user = await authenticateBearer(token);
+    } catch {
+      // Invalid token → continue anonymously (optional auth).
+    }
     next();
   } catch (err) {
     next(err);

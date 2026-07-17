@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import { asyncHandler } from '../lib/asyncHandler.js';
+import { cacheStatusFromSource } from '../lib/cacheStatus.js';
 import { ok } from '../lib/envelope.js';
 import {
   marketQuerySchema,
@@ -21,6 +22,9 @@ marketRouter.get(
     const query = req.query as unknown as MarketQuery;
     const result = await getMarket(query.vs, query.limit);
 
+    res.locals.cacheStatus = cacheStatusFromSource(result.source);
+    res.locals.provider = 'coingecko';
+
     res.status(200).json(
       ok(result.value, {
         requestId: res.locals.requestId,
@@ -39,6 +43,9 @@ marketRouter.get(
   asyncHandler(async (req, res) => {
     const query = req.query as unknown as TrendingQuery;
     const result = await getTrending(query.vs);
+
+    res.locals.cacheStatus = cacheStatusFromSource(result.source);
+    res.locals.provider = 'coingecko';
 
     res.status(200).json(
       ok(result.value, {

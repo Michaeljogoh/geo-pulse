@@ -39,6 +39,11 @@ export class CacheManager {
     return this.l1.getStats();
   }
 
+  /** Test helper — clears L1 so producer paths can be exercised again. */
+  _flushL1ForTests(): void {
+    this.l1.flush();
+  }
+
   async getOrSet<T>(
     logicalKey: string,
     ttlS: number,

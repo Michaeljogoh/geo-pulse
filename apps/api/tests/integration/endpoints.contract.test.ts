@@ -1,9 +1,14 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { createApp } from '../../src/app.js';
 import { DEMO_PUBLIC_IP } from '../../src/config/constants.js';
+import { _resetCircuitBreakersForTests } from '../../src/lib/breakerRegistry.js';
 import { DEV_AUTH_USER } from '../../src/middleware/auth.js';
+
+afterEach(() => {
+  _resetCircuitBreakersForTests();
+});
 
 describe('API endpoint contracts (Section 9)', () => {
   const app = createApp();
@@ -44,14 +49,18 @@ describe('API endpoint contracts (Section 9)', () => {
   });
 
   describe('9.6 GET /api/dashboard', () => {
-    it('returns 200 envelope with degraded payload when sections fail', async () => {
+    it('returns 200 with visitor and section metas when upstreams are mocked', async () => {
       const res = await request(app).get('/api/dashboard').query({ ip: DEMO_PUBLIC_IP });
       expect(res.status).toBe(200);
       expect(res.body.error).toBeNull();
-      expect(res.body.data.degraded).toBe(true);
-      expect(res.body.data.sections.market.ok).toBe(false);
       expect(res.body.data.visitor.ip).toBe(DEMO_PUBLIC_IP);
-      expect(res.body.meta.degraded).toBe(true);
+      expect(res.body.data.sections).toMatchObject({
+        market: expect.objectContaining({ ok: true }),
+        trending: expect.objectContaining({ ok: true }),
+        news: expect.objectContaining({ ok: true }),
+      });
+      expect(res.body.data.degraded).toBe(false);
+      expect(res.body.meta.degraded).toBe(false);
     });
   });
 

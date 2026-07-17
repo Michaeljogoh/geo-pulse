@@ -7,6 +7,15 @@ import { CircuitBreaker } from '../lib/circuitBreaker.js';
 import type { CircuitBreakerSnapshot } from '../lib/circuitBreaker.js';
 import type { ProviderHealth } from '../types/domain.js';
 
+/** Provider ids reported by GET /api/status (Section 10 / Phase 11). */
+export const STATUS_PROVIDER_NAMES = [
+  'ipapi',
+  'ipwho',
+  'coingecko',
+  'cryptopanic',
+  'gnews',
+] as const;
+
 const breakers = new Map<string, CircuitBreaker>();
 
 export function getCircuitBreaker(name: string): CircuitBreaker {
@@ -26,19 +35,31 @@ export function listCircuitBreakerSnapshots(): CircuitBreakerSnapshot[] {
   return Array.from(breakers.values()).map((b) => b.getSnapshot());
 }
 
+function toProviderHealth(provider: string, snap: CircuitBreakerSnapshot): ProviderHealth {
+  return {
+    provider,
+    state: snap.state,
+    lastSuccessAt: snap.lastSuccessAt ? new Date(snap.lastSuccessAt).toISOString() : null,
+    lastFailureAt: snap.lastFailureAt ? new Date(snap.lastFailureAt).toISOString() : null,
+    consecutiveFail: snap.consecutiveFail,
+    successCount: snap.successCount,
+    failureCount: snap.failureCount,
+    avgLatencyMs: 0,
+  };
+}
+
+/**
+ * Phase 11 — in-memory breaker snapshots for known providers.
+ * Phase 13 will enrich timestamps from Firestore `provider_health`.
+ */
 export function listProviderHealthFromBreakers(): ProviderHealth[] {
-  return Array.from(breakers.entries()).map(([provider, breaker]) => {
-    const snap = breaker.getSnapshot();
-    return {
-      provider,
-      state: snap.state,
-      lastSuccessAt: snap.lastSuccessAt ? new Date(snap.lastSuccessAt).toISOString() : null,
-      lastFailureAt: snap.lastFailureAt ? new Date(snap.lastFailureAt).toISOString() : null,
-      consecutiveFail: snap.consecutiveFail,
-      successCount: snap.successCount,
-      failureCount: snap.failureCount,
-      avgLatencyMs: 0,
-    };
+  for (const name of STATUS_PROVIDER_NAMES) {
+    getCircuitBreaker(name);
+  }
+
+  return STATUS_PROVIDER_NAMES.map((provider) => {
+    const breaker = getCircuitBreaker(provider);
+    return toProviderHealth(provider, breaker.getSnapshot());
   });
 }
 

@@ -39,19 +39,32 @@ function unknownVisitor(ip: string): IpIntelligence {
   };
 }
 
+async function timedSettled<T>(
+  fn: () => Promise<T>,
+): Promise<{ settled: PromiseSettledResult<T>; latencyMs: number }> {
+  const started = Date.now();
+  try {
+    const value = await fn();
+    return { settled: { status: 'fulfilled', value }, latencyMs: Date.now() - started };
+  } catch (reason) {
+    return { settled: { status: 'rejected', reason }, latencyMs: Date.now() - started };
+  }
+}
+
 function sectionFromSettled<T>(
   settled: PromiseSettledResult<T>,
-  pick: (value: T) => { source: CacheSource; latencyMs?: number },
+  latencyMs: number,
+  pick: (value: T) => { source: CacheSource },
 ): { ok: boolean; meta: SectionMeta; value: T | null } {
   if (settled.status === 'fulfilled') {
-    const { source, latencyMs } = pick(settled.value);
+    const { source } = pick(settled.value);
     return {
       ok: true,
       value: settled.value,
       meta: {
         ok: true,
         source,
-        latencyMs: latencyMs ?? 0,
+        latencyMs,
         error: null,
       },
     };
@@ -64,7 +77,7 @@ function sectionFromSettled<T>(
     meta: {
       ok: false,
       source: 'error',
-      latencyMs: 0,
+      latencyMs,
       error: message,
     },
   };
@@ -89,19 +102,21 @@ export async function getDashboard(ip: string): Promise<DashboardPayload> {
   const vs = (visitor.currency ?? 'USD').toLowerCase();
   const country = visitor.countryCode ?? undefined;
 
-  const [marketSettled, trendingSettled, newsSettled] = await Promise.allSettled([
-    getMarket(vs, MARKET_DEFAULT_LIMIT),
-    getTrending(vs),
-    getNews({ country, lang: 'en' }),
+  const [marketTimed, trendingTimed, newsTimed] = await Promise.all([
+    timedSettled(() => getMarket(vs, MARKET_DEFAULT_LIMIT)),
+    timedSettled(() => getTrending(vs)),
+    timedSettled(() => getNews({ country, lang: 'en' })),
   ]);
 
-  const marketSection = sectionFromSettled(marketSettled, (v) => ({
+  const marketSection = sectionFromSettled(marketTimed.settled, marketTimed.latencyMs, (v) => ({
     source: v.source,
   }));
-  const trendingSection = sectionFromSettled(trendingSettled, (v) => ({
-    source: v.source,
-  }));
-  const newsSection = sectionFromSettled(newsSettled, (v) => ({
+  const trendingSection = sectionFromSettled(
+    trendingTimed.settled,
+    trendingTimed.latencyMs,
+    (v) => ({ source: v.source }),
+  );
+  const newsSection = sectionFromSettled(newsTimed.settled, newsTimed.latencyMs, (v) => ({
     source: v.source,
   }));
 

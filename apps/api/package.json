@@ -1,8 +1,8 @@
 {
-  "name": "geoip-crypto-intel-api",
+  "name": "geopulse-api",
   "version": "1.0.0",
   "private": true,
-  "description": "GeoIP Crypto Intelligence Platform — Backend Service",
+  "description": "GeoPulse — Backend API",
   "engines": {
     "node": ">=22"
   },
@@ -16,7 +16,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:firestore:inner": "vitest run tests/integration/firestore.test.ts tests/integration/logging.test.ts",
-    "test:firestore": "cd ../.. && npx --yes firebase-tools emulators:exec --project geoip-crypto-intel-test --only firestore \"cd apps/api && FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 npm run test:firestore:inner\"",
+    "test:firestore": "cd ../.. && npx --yes firebase-tools emulators:exec --project geopulse-test --only firestore \"cd apps/api && FIRESTORE_EMULATOR_HOST=127.0.0.1:8085 npm run test:firestore:inner\"",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""

@@ -1,0 +1,894 @@
+openapi: 3.1.0
+info:
+  title: GeoPulse API
+  version: 1.0.0
+  description: |
+    GeoPulse backend — orchestrates IP intelligence, crypto market data, and crypto news
+    behind a standard `{ data, meta, error }` envelope.
+servers:
+  - url: /
+    description: Current host
+tags:
+  - name: Health
+  - name: Geo
+  - name: Market
+  - name: News
+  - name: Dashboard
+  - name: Status
+  - name: Auth
+  - name: Watchlist
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness/readiness probe
+      description: No envelope. Reports Firestore connectivity without failing when it is down.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Probe payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthProbe'
+              example:
+                status: ok
+                uptimeSeconds: 123
+                version: '1.0.0'
+                timestamp: '2026-07-16T12:00:00.000Z'
+                firestore: up
+
+  /api/geo:
+    get:
+      tags: [Geo]
+      summary: IP intelligence
+      description: |
+        Resolve geo/network intelligence for an IP. Omitting `ip` uses the caller address
+        (`X-Forwarded-For` then socket). Private/loopback IPs use the documented demo IP.
+      operationId: getGeo
+      parameters:
+        - $ref: '#/components/parameters/IpQuery'
+      responses:
+        '200':
+          description: IpIntelligence envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IpIntelligenceResponse'
+              example:
+                data:
+                  ip: '8.8.8.8'
+                  country: United States
+                  countryCode: US
+                  city: Mountain View
+                  region: California
+                  latitude: 37.386
+                  longitude: -122.0838
+                  timezone: America/Los_Angeles
+                  currency: USD
+                  isp: Google LLC
+                  organization: Google Public DNS
+                  asn: AS15169
+                  asnName: GOOGLE
+                  isProxy: false
+                  isHosting: true
+                  isMobile: false
+                  networkType: datacenter
+                  confidence: 0.9
+                meta:
+                  requestId: b1f0c2a4-0000-4000-8000-000000000001
+                  source: live
+                  provider: ipapi
+                  latencyMs: 42
+                  cached: false
+                  confidence: 0.9
+                error: null
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/CircuitOpen'
+        '504':
+          $ref: '#/components/responses/UpstreamTimeout'
+
+  /api/market:
+    get:
+      tags: [Market]
+      summary: Market coins
+      operationId: getMarket
+      parameters:
+        - $ref: '#/components/parameters/VsCurrency'
+        - name: limit
+          in: query
+          required: false
+          description: Number of coins (1..MARKET_MAX_LIMIT). Default MARKET_DEFAULT_LIMIT (20).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Coin[] envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoinListResponse'
+              example:
+                data:
+                  - id: bitcoin
+                    symbol: btc
+                    name: Bitcoin
+                    image: 'https://example.com/btc.png'
+                    currentPrice: 60000
+                    currency: usd
+                    marketCap: 1000000000
+                    marketCapRank: 1
+                    priceChangePct24h: 2.5
+                    totalVolume: 50000000
+                    high24h: 61000
+                    low24h: 59000
+                    lastUpdated: '2026-07-16T12:00:00.000Z'
+                meta:
+                  requestId: b1f0c2a4-0000-4000-8000-000000000002
+                  source: live
+                  provider: coingecko
+                  latencyMs: 120
+                  cached: false
+                error: null
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/trending:
+    get:
+      tags: [Market]
+      summary: Trending coins with gainers and losers
+      operationId: getTrending
+      parameters:
+        - $ref: '#/components/parameters/VsCurrency'
+      responses:
+        '200':
+          description: TrendingResult envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendingResultResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/news:
+    get:
+      tags: [News]
+      summary: Crypto news
+      description: CryptoPanic primary; GNews regional fallback when configured.
+      operationId: getNews
+      parameters:
+        - name: country
+          in: query
+          required: false
+          description: ISO 3166-1 alpha-2 country code
+          schema:
+            type: string
+            pattern: '^[A-Za-z]{2}$'
+            example: us
+        - name: symbols
+          in: query
+          required: false
+          description: Comma-separated tickers (uppercased), e.g. BTC,ETH
+          schema:
+            type: string
+            example: BTC,ETH
+        - name: lang
+          in: query
+          required: false
+          schema:
+            type: string
+            default: en
+            example: en
+      responses:
+        '200':
+          description: NewsItem[] envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsListResponse'
+              example:
+                data:
+                  - title: Bitcoin hits new high
+                    url: 'https://example.com/btc'
+                    source: CoinDesk
+                    publishedAt: '2026-07-16T10:00:00.000Z'
+                    sentiment: positive
+                    imageUrl: null
+                meta:
+                  requestId: b1f0c2a4-0000-4000-8000-000000000003
+                  source: live
+                  provider: cryptopanic
+                  latencyMs: 90
+                  cached: false
+                error: null
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Aggregated dashboard
+      description: |
+        Geo first, then market/trending/news in parallel. Always HTTP 200; section failures
+        set `degraded=true` and `sections.*.ok=false`.
+      operationId: getDashboard
+      parameters:
+        - $ref: '#/components/parameters/IpQuery'
+      responses:
+        '200':
+          description: DashboardPayload envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /api/status:
+    get:
+      tags: [Status]
+      summary: Provider and cache status
+      description: In-memory circuit-breaker snapshots, L1 cache stats, and process uptime.
+      operationId: getStatus
+      responses:
+        '200':
+          description: Status envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+              example:
+                data:
+                  providers:
+                    - provider: ipapi
+                      state: closed
+                      lastSuccessAt: '2026-07-16T12:00:00.000Z'
+                      lastFailureAt: null
+                      consecutiveFail: 0
+                      successCount: 3
+                      failureCount: 0
+                      avgLatencyMs: 0
+                  cache:
+                    l1Keys: 4
+                    hitRatio: 0.5
+                  uptimeSeconds: 3600
+                meta:
+                  requestId: b1f0c2a4-0000-4000-8000-000000000004
+                  source: live
+                  latencyMs: 2
+                  cached: false
+                error: null
+
+  /api/me:
+    get:
+      tags: [Auth]
+      summary: Current authenticated user
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: AuthUser envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /api/watchlist:
+    get:
+      tags: [Watchlist]
+      summary: User watchlist enriched with live prices
+      operationId: getWatchlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/VsCurrency'
+      responses:
+        '200':
+          description: WatchlistItem[] envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /api/watchlist/{coinId}:
+    parameters:
+      - name: coinId
+        in: path
+        required: true
+        description: CoinGecko coin id (e.g. bitcoin)
+        schema:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          example: bitcoin
+    put:
+      tags: [Watchlist]
+      summary: Add coin to watchlist (idempotent)
+      operationId: putWatchlistCoin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Updated WatchlistItem[] envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    delete:
+      tags: [Watchlist]
+      summary: Remove coin from watchlist
+      operationId: deleteWatchlistCoin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Updated WatchlistItem[] envelope
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase Authentication ID token
+
+  parameters:
+    IpQuery:
+      name: ip
+      in: query
+      required: false
+      description: IPv4 or IPv6 address to look up
+      schema:
+        type: string
+        example: '8.8.8.8'
+    VsCurrency:
+      name: vs
+      in: query
+      required: false
+      description: ISO 4217 quote currency (lowercased)
+      schema:
+        type: string
+        pattern: '^[A-Za-z]{3}$'
+        default: usd
+        example: usd
+
+  responses:
+    ValidationError:
+      description: VALIDATION_ERROR
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              requestId: b1f0c2a4-0000-4000-8000-000000000099
+              source: live
+              latencyMs: 3
+              cached: false
+            error:
+              code: VALIDATION_ERROR
+              message: 'Invalid query parameter'
+              details:
+                - path: vs
+                  issue: must be a 3-letter code
+    Unauthenticated:
+      description: UNAUTHENTICATED
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            data: null
+            meta:
+              requestId: b1f0c2a4-0000-4000-8000-000000000098
+              source: live
+              latencyMs: 1
+              cached: false
+            error:
+              code: UNAUTHENTICATED
+              message: Authentication required
+    UpstreamError:
+      description: UPSTREAM_ERROR
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    UpstreamTimeout:
+      description: UPSTREAM_TIMEOUT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    CircuitOpen:
+      description: CIRCUIT_OPEN
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+
+  schemas:
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - UNAUTHENTICATED
+        - FORBIDDEN
+        - NOT_FOUND
+        - RATE_LIMITED
+        - UPSTREAM_TIMEOUT
+        - UPSTREAM_ERROR
+        - CIRCUIT_OPEN
+        - INTERNAL
+
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+        details: {}
+
+    ResponseMeta:
+      type: object
+      required: [requestId, source, latencyMs, cached]
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        source:
+          type: string
+          enum: [live, cache-l1, cache-l2, fallback]
+        provider:
+          type: string
+        latencyMs:
+          type: number
+        cached:
+          type: boolean
+        confidence:
+          type: ['number', 'null']
+        lastUpdated:
+          type: ['string', 'null']
+          format: date-time
+        degraded:
+          type: boolean
+
+    ErrorEnvelope:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          type: 'null'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          $ref: '#/components/schemas/ApiError'
+
+    HealthProbe:
+      type: object
+      required: [status, uptimeSeconds, version, timestamp, firestore]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        uptimeSeconds:
+          type: number
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        firestore:
+          type: string
+          enum: [up, down, unknown]
+
+    NetworkType:
+      type: string
+      enum: [residential, mobile, datacenter, proxy_vpn, unknown]
+
+    IpIntelligence:
+      type: object
+      required:
+        - ip
+        - country
+        - countryCode
+        - city
+        - region
+        - latitude
+        - longitude
+        - timezone
+        - currency
+        - isp
+        - organization
+        - asn
+        - asnName
+        - isProxy
+        - isHosting
+        - isMobile
+        - networkType
+        - confidence
+      properties:
+        ip:
+          type: string
+        country:
+          type: ['string', 'null']
+        countryCode:
+          type: ['string', 'null']
+          description: ISO 3166-1 alpha-2
+        city:
+          type: ['string', 'null']
+        region:
+          type: ['string', 'null']
+        latitude:
+          type: ['number', 'null']
+        longitude:
+          type: ['number', 'null']
+        timezone:
+          type: ['string', 'null']
+          description: IANA timezone
+        currency:
+          type: ['string', 'null']
+          description: ISO 4217
+        isp:
+          type: ['string', 'null']
+        organization:
+          type: ['string', 'null']
+        asn:
+          type: ['string', 'null']
+        asnName:
+          type: ['string', 'null']
+        isProxy:
+          type: ['boolean', 'null']
+        isHosting:
+          type: ['boolean', 'null']
+        isMobile:
+          type: ['boolean', 'null']
+        networkType:
+          $ref: '#/components/schemas/NetworkType'
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    Coin:
+      type: object
+      required:
+        - id
+        - symbol
+        - name
+        - image
+        - currentPrice
+        - currency
+        - marketCap
+        - marketCapRank
+        - priceChangePct24h
+        - totalVolume
+        - high24h
+        - low24h
+        - lastUpdated
+      properties:
+        id:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        image:
+          type: ['string', 'null']
+        currentPrice:
+          type: number
+        currency:
+          type: string
+        marketCap:
+          type: ['number', 'null']
+        marketCapRank:
+          type: ['number', 'null']
+        priceChangePct24h:
+          type: ['number', 'null']
+        totalVolume:
+          type: ['number', 'null']
+        high24h:
+          type: ['number', 'null']
+        low24h:
+          type: ['number', 'null']
+        lastUpdated:
+          type: string
+          format: date-time
+
+    TrendingCoin:
+      type: object
+      required: [id, name, symbol, marketCapRank, thumb]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        symbol:
+          type: string
+        marketCapRank:
+          type: ['number', 'null']
+        thumb:
+          type: ['string', 'null']
+
+    TrendingResult:
+      type: object
+      required: [trending, gainers, losers]
+      properties:
+        trending:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendingCoin'
+        gainers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coin'
+        losers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coin'
+
+    NewsItem:
+      type: object
+      required: [title, url, source, publishedAt, sentiment, imageUrl]
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+        source:
+          type: ['string', 'null']
+        publishedAt:
+          type: string
+          format: date-time
+        sentiment:
+          type: ['string', 'null']
+          enum: [positive, negative, neutral, null]
+        imageUrl:
+          type: ['string', 'null']
+
+    SectionMeta:
+      type: object
+      required: [ok, source, latencyMs, error]
+      properties:
+        ok:
+          type: boolean
+        source:
+          type: string
+          enum: [live, cache-l1, cache-l2, fallback, error]
+        latencyMs:
+          type: number
+        error:
+          type: ['string', 'null']
+
+    DashboardPayload:
+      type: object
+      required: [visitor, market, trending, news, sections, degraded]
+      properties:
+        visitor:
+          $ref: '#/components/schemas/IpIntelligence'
+        market:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coin'
+        trending:
+          $ref: '#/components/schemas/TrendingResult'
+        news:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsItem'
+        sections:
+          type: object
+          required: [market, trending, news]
+          properties:
+            market:
+              $ref: '#/components/schemas/SectionMeta'
+            trending:
+              $ref: '#/components/schemas/SectionMeta'
+            news:
+              $ref: '#/components/schemas/SectionMeta'
+        degraded:
+          type: boolean
+
+    ProviderHealth:
+      type: object
+      required:
+        - provider
+        - state
+        - lastSuccessAt
+        - lastFailureAt
+        - consecutiveFail
+        - successCount
+        - failureCount
+        - avgLatencyMs
+      properties:
+        provider:
+          type: string
+        state:
+          type: string
+          enum: [closed, open, half_open]
+        lastSuccessAt:
+          type: ['string', 'null']
+          format: date-time
+        lastFailureAt:
+          type: ['string', 'null']
+          format: date-time
+        consecutiveFail:
+          type: integer
+        successCount:
+          type: integer
+        failureCount:
+          type: integer
+        avgLatencyMs:
+          type: number
+
+    StatusPayload:
+      type: object
+      required: [providers, cache, uptimeSeconds]
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderHealth'
+        cache:
+          type: object
+          required: [l1Keys, hitRatio]
+          properties:
+            l1Keys:
+              type: integer
+            hitRatio:
+              type: number
+        uptimeSeconds:
+          type: number
+
+    AuthUser:
+      type: object
+      required: [uid, email, name, picture]
+      properties:
+        uid:
+          type: string
+        email:
+          type: ['string', 'null']
+        name:
+          type: ['string', 'null']
+        picture:
+          type: ['string', 'null']
+
+    WatchlistItem:
+      type: object
+      required: [coinId, available, coin, addedAt]
+      properties:
+        coinId:
+          type: string
+        available:
+          type: boolean
+        coin:
+          oneOf:
+            - $ref: '#/components/schemas/Coin'
+            - type: 'null'
+        addedAt:
+          type: string
+          format: date-time
+
+    IpIntelligenceResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          $ref: '#/components/schemas/IpIntelligence'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    CoinListResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coin'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    TrendingResultResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          $ref: '#/components/schemas/TrendingResult'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    NewsListResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsItem'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    DashboardResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          $ref: '#/components/schemas/DashboardPayload'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    StatusResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          $ref: '#/components/schemas/StatusPayload'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    AuthUserResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          $ref: '#/components/schemas/AuthUser'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'
+
+    WatchlistResponse:
+      type: object
+      required: [data, meta, error]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WatchlistItem'
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+        error:
+          type: 'null'

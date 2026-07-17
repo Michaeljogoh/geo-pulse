@@ -90,7 +90,12 @@ describe('Section 12.1 ip-api.com → IpIntelligence', () => {
     try {
       mapIpApiResponse({ status: 'fail', message: 'reserved range' });
     } catch (err) {
-      expect(err).toMatchObject({ code: 'UPSTREAM_ERROR', message: 'reserved range' });
+      expect(err).toMatchObject({
+        code: 'UPSTREAM_ERROR',
+        message: 'ip-api lookup failed',
+        details: { reason: 'reserved range' },
+      });
+      expect((err as AppError).toApiError().details).toBeUndefined();
     }
   });
 });

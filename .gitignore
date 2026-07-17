@@ -8,5 +8,4 @@ coverage/
 .firebase/
 firestore-debug.log
 ui-debug.log
-docs/
 graphify-out/

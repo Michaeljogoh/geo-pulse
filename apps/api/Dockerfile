@@ -1,4 +1,4 @@
-# Multi-stage build for apps/api (Phase 18)
+# Multi-stage build for GeoPulse API
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./

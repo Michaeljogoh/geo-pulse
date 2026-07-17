@@ -1,13 +1,13 @@
-# Architecture overview — GeoIP Crypto Intelligence API
+# Architecture overview — GeoPulse API
 
-**Source of truth:** [geoip-crypto-intel-backend-plan.md](./geoip-crypto-intel-backend-plan.md) §1  
-**Scope:** Backend package `apps/api` only. No application code in this stage.
+**Source of truth:** [geopulse-backend-plan.md](./geopulse-backend-plan.md) §1  
+**Scope:** GeoPulse backend (`apps/api` + `apps/functions`). This repository is backend-only.
 
 ## System diagram
 
 ```text
                          ┌─────────────────────────────────────────────┐
-  Client (Next.js) ──▶   │   Express REST API (Node 22 + TypeScript)     │
+  API clients ──▶   │   Express REST API (Node 22 + TypeScript)     │
                          │                                               │
                          │  Middleware: requestId → helmet → cors →      │
                          │  rateLimit → validate → route → errorHandler  │
@@ -61,7 +61,6 @@ Concrete providers (ip-api, CoinGecko, CryptoPanic, etc.) implement the provider
 **Not included (later phases)**
 
 - Phase 0+ tooling, Express app, providers, cache, or endpoints
-- Frontend (Next.js) implementation
 - Approved dependency install (plan §2) or env wiring (plan §4)
 
 ## Next stage

@@ -24,7 +24,7 @@ function useCoinGeckoHandlers(): void {
   );
 }
 
-describe('GET /api/market and /api/trending (Phase 8)', () => {
+describe('GET /api/market and /api/trending', () => {
   const app = createApp();
 
   beforeEach(() => {

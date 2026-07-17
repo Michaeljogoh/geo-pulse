@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AppError, ERROR_HTTP_STATUS, isAppError } from '../../src/lib/errors.js';
 import type { ErrorCode } from '../../src/types/envelope.js';
 
-describe('AppError taxonomy (Section 8)', () => {
+describe('AppError taxonomy', () => {
   const cases: Array<{
     code: ErrorCode;
     factory: () => AppError;
@@ -66,7 +66,7 @@ describe('AppError taxonomy (Section 8)', () => {
     expect(err.isOperational).toBe(code !== 'INTERNAL');
   });
 
-  it('toApiError includes details only for client-safe codes (Section 13)', () => {
+  it('toApiError includes details only for client-safe codes', () => {
     expect(AppError.notFound().toApiError()).toEqual({
       code: 'NOT_FOUND',
       message: 'Resource not found',

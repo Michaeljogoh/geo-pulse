@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../../src/app.js';
 import { _resetCircuitBreakersForTests } from '../../src/lib/breakerRegistry.js';
 import { fetchNews } from '../../src/providers/news/index.js';
-import { cryptoPanicFixture, gNewsFixture } from '../msw/handlers.js';
+import { cryptoCompareFixture, gNewsFixture } from '../msw/handlers.js';
 import { server } from '../msw/server.js';
 
 afterEach(() => {
@@ -14,14 +14,14 @@ afterEach(() => {
 
 function useNewsHandlers(): void {
   server.use(
-    http.get('https://cryptopanic.com/api/v1/posts/', () =>
-      HttpResponse.json(cryptoPanicFixture),
+    http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
+      HttpResponse.json(cryptoCompareFixture),
     ),
     http.get('https://gnews.io/api/v4/search', () => HttpResponse.json(gNewsFixture)),
   );
 }
 
-describe('GET /api/news (Phase 9)', () => {
+describe('GET /api/news', () => {
   const app = createApp();
 
   beforeEach(() => {
@@ -37,14 +37,14 @@ describe('GET /api/news (Phase 9)', () => {
       title: 'Bitcoin hits new high',
       sentiment: 'positive',
     });
-    expect(res.body.meta.provider).toBe('cryptopanic');
+    expect(res.body.meta.provider).toBe('cryptocompare');
   });
 
   it(
-    'falls back to GNews when CryptoPanic fails',
+    'falls back to GNews when CryptoCompare fails',
     async () => {
       server.use(
-        http.get('https://cryptopanic.com/api/v1/posts/', () =>
+        http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
           HttpResponse.json({ error: 'fail' }, { status: 500 }),
         ),
         http.get('https://gnews.io/api/v4/search', () => HttpResponse.json(gNewsFixture)),
@@ -77,8 +77,8 @@ describe('GET /api/news (Phase 9)', () => {
 describe('fetchNews without GNews', () => {
   beforeEach(() => {
     server.use(
-      http.get('https://cryptopanic.com/api/v1/posts/', () =>
-        HttpResponse.json({ results: [] }),
+      http.get('https://min-api.cryptocompare.com/data/v2/news/', () =>
+        HttpResponse.json({ Type: 100, Data: [] }),
       ),
     );
   });
@@ -86,6 +86,6 @@ describe('fetchNews without GNews', () => {
   it('returns empty list without crashing when GNews disabled', async () => {
     const result = await fetchNews({ symbols: ['BTC'] }, { gnewsEnabled: false });
     expect(result.items).toEqual([]);
-    expect(result.provider).toBe('cryptopanic');
+    expect(result.provider).toBe('cryptocompare');
   });
 });

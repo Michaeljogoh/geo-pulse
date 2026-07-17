@@ -11,7 +11,7 @@ afterEach(() => {
   _resetCircuitBreakersForTests();
 });
 
-describe('GET /api/geo (Phase 7)', () => {
+describe('GET /api/geo', () => {
   const app = createApp();
 
   beforeEach(() => {

@@ -9,3 +9,4 @@ coverage/
 firestore-debug.log
 ui-debug.log
 graphify-out/
+docs/

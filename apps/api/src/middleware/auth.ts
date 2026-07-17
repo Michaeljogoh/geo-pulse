@@ -31,7 +31,7 @@ async function authenticateBearer(token: string): Promise<AuthUser> {
 }
 
 /**
- * Require a verified Firebase ID token (Section 9.9 / Phase 14).
+ * Require a verified Firebase ID token.
  * When AUTH_ENABLED=false and NODE_ENV !== production, injects DEV_AUTH_USER.
  */
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {

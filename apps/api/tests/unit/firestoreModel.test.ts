@@ -10,7 +10,7 @@ import type {
   WatchlistDocument,
 } from '../../src/types/firestore.js';
 
-describe('Firestore data model (Section 10)', () => {
+describe('Firestore data model', () => {
   it('defines the expected collection names', () => {
     expect(COLLECTIONS).toEqual({
       CACHE: 'cache',
@@ -24,7 +24,7 @@ describe('Firestore data model (Section 10)', () => {
 
   it('lists provider_health document ids', () => {
     expect([...PROVIDER_IDS].sort()).toEqual(
-      ['coingecko', 'cryptopanic', 'gnews', 'ipapi', 'ipwho'].sort(),
+      ['coingecko', 'cryptocompare', 'gnews', 'ipapi', 'ipwho'].sort(),
     );
   });
 

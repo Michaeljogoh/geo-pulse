@@ -18,7 +18,7 @@ function authAdminUnavailableInTests(): boolean {
   return env.NODE_ENV === 'test' && !usingEmulator();
 }
 
-/** Test helper — inject a mock `verifyIdToken` (Phase 14 DoD). */
+/** Test helper — inject a mock `verifyIdToken`. */
 export function _setVerifyIdTokenForTests(fn: VerifyIdTokenFn | null): void {
   verifyOverride = fn;
 }

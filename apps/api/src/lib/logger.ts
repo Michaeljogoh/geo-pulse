@@ -2,10 +2,7 @@ import pino from 'pino';
 
 import { env } from '../config/env.js';
 
-/**
- * Structured logger (Section 13).
- * Never log secrets or full API keys — redact common sensitive paths.
- */
+/** Structured logger. Redacts secrets and API keys from log output. */
 export const logger = pino({
   level: env.LOG_LEVEL,
   redact: {
@@ -18,7 +15,7 @@ export const logger = pino({
       'authorization',
       'FIREBASE_PRIVATE_KEY',
       'private_key',
-      'CRYPTOPANIC_TOKEN',
+      'CRYPTOCOMPARE_API_KEY',
       'GNEWS_API_KEY',
       'COINGECKO_DEMO_KEY',
       '*.auth_token',

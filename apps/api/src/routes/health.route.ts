@@ -24,7 +24,7 @@ healthRouter.get(
   }),
 );
 
-/** Test-only validation route (Phase 2 acceptance). */
+/** Test-only validation route used by contract tests. */
 export const testValidateRouter: Router = createRouter();
 
 testValidateRouter.get(

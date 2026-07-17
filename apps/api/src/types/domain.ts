@@ -1,4 +1,4 @@
-/** Single definition of normalized API shapes (plan Section 6). */
+/** Normalized domain types returned by the API. */
 
 export type NetworkType = 'residential' | 'mobile' | 'datacenter' | 'proxy_vpn' | 'unknown';
 
@@ -20,7 +20,7 @@ export interface IpIntelligence {
   isHosting: boolean | null; // datacenter
   isMobile: boolean | null;
   networkType: NetworkType;
-  confidence: number; // 0..1 (see Section 12.4)
+  confidence: number; // 0..1
 }
 
 export interface Coin {
@@ -82,7 +82,7 @@ export interface SectionMeta {
   error: string | null;
 }
 
-// --- Auth & watchlist (Phases 14–15) ---
+// --- Auth & watchlist ---
 
 export interface AuthUser {
   uid: string; // Firebase Auth uid (from verified ID token)
@@ -98,7 +98,7 @@ export interface WatchlistItem {
   addedAt: string; // ISO 8601
 }
 
-/** Provider health snapshot for GET /api/status (Section 9.7 / Phase 13). */
+/** Provider health snapshot for GET /api/status. */
 export interface ProviderHealth {
   provider: string;
   state: 'closed' | 'open' | 'half_open';

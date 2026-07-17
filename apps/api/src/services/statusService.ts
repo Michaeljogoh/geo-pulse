@@ -17,7 +17,7 @@ function timestampToIso(value: { toDate(): Date } | null | undefined): string | 
 }
 
 /**
- * Phase 11 + 13 — breaker snapshots, optionally enriched with Firestore
+ * Circuit-breaker snapshots, optionally enriched with Firestore
  * `provider_health` timestamps / avgLatencyMs when available (fail-open).
  */
 export async function getStatus(): Promise<StatusPayload> {

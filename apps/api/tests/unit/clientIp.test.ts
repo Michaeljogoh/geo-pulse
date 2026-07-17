@@ -18,7 +18,7 @@ function mockReq(partial: {
   } as unknown as Request;
 }
 
-describe('clientIp helpers (Section 9.2)', () => {
+describe('clientIp helpers', () => {
   it('detects private and loopback addresses', () => {
     expect(isPrivateOrLoopbackIp('127.0.0.1')).toBe(true);
     expect(isPrivateOrLoopbackIp('::1')).toBe(true);

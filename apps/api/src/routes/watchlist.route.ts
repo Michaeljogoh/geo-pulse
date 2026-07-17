@@ -17,7 +17,6 @@ import {
   removeWatchlistItem,
 } from '../services/watchlistService.js';
 
-/** Section 9.9 — /api/watchlist (protected). */
 export const watchlistRouter = Router();
 
 watchlistRouter.get(

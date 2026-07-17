@@ -7,7 +7,6 @@ import { newsQuerySchema, type NewsQuery } from '../lib/querySchemas.js';
 import { validateQuery } from '../middleware/validate.js';
 import { getNews } from '../services/newsService.js';
 
-/** Section 9.5 — GET /api/news */
 export const newsRouter = Router();
 
 newsRouter.get(

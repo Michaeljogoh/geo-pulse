@@ -1,7 +1,7 @@
 import type { CacheSource } from '../cache/types.js';
 import type { CacheStatus } from '../types/firestore.js';
 
-/** Map cache layer source → request_logs.cacheStatus (Section 10). */
+/** Map cache layer source → request_logs.cacheStatus. */
 export function cacheStatusFromSource(source: CacheSource): CacheStatus {
   switch (source) {
     case 'cache-l1':

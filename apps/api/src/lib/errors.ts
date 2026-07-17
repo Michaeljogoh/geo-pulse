@@ -1,6 +1,6 @@
 import type { ApiError, ErrorCode } from '../types/envelope.js';
 
-/** Single source of truth: ErrorCode → HTTP status (plan Section 8). */
+/** ErrorCode → HTTP status mapping. */
 export const ERROR_HTTP_STATUS = {
   VALIDATION_ERROR: 400,
   UNAUTHENTICATED: 401,
@@ -18,7 +18,7 @@ export const ERROR_HTTP_STATUS = {
  * Carries `{ code, httpStatus, message, details?, isOperational }`.
  * Mapped to the standard envelope by `errorHandler`.
  *
- * Section 13: never reflect raw upstream error bodies to clients —
+ * Never reflect raw upstream error bodies to clients —
  * only client-safe codes expose `details` via `toApiError()`.
  */
 export class AppError extends Error {

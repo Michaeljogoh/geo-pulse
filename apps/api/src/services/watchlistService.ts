@@ -40,7 +40,7 @@ function enrich(entries: WatchlistCoin[], markets: Coin[]): WatchlistItem[] {
 }
 
 /**
- * Phase 15 — read watchlist and enrich with live CoinGecko prices.
+ * Read watchlist and enrich with live CoinGecko prices.
  * Unknown coin ids → `{ available: false, coin: null }` (never fabricate).
  */
 export async function getEnriched(uid: string, vs = 'usd'): Promise<WatchlistItem[]> {

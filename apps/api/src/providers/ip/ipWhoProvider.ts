@@ -44,14 +44,14 @@ const ipWhoSchema = z.object({
 });
 
 export function mapIpWhoResponse(raw: unknown): IpIntelligence {
-  // Section 12.2 — nested fields; isProxy/isHosting/isMobile always null; asnName ← connection.isp
+  // Nested fields; proxy/hosting/mobile flags unavailable → null; asnName from connection.isp.
   const parsed = ipWhoSchema.safeParse(raw);
   if (!parsed.success) {
     throw AppError.upstreamError('Invalid ipwho.is response shape', parsed.error.issues);
   }
   const data = parsed.data;
   if (data.success === false) {
-    // Section 13 — do not echo raw upstream bodies to clients (details stay server-side).
+    // Keep upstream bodies in AppError.details for logs only — never send to clients.
     throw AppError.upstreamError('ipwho.is lookup failed', {
       reason: data.message ?? 'success_false',
     });
@@ -94,7 +94,7 @@ export function mapIpWhoResponse(raw: unknown): IpIntelligence {
   };
 }
 
-/** Phase 7 — ipwho.is fallback provider. */
+/** ipwho.is IP intelligence provider (fallback). */
 export class IpWhoProvider implements IpIntelligenceProvider {
   readonly name = 'ipwho';
   private readonly client = createHttpClient({ name: this.name, timeoutMs: HTTP_TIMEOUT_MS });

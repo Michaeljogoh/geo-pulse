@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-/** Shared MSW fixtures for IP providers (Phase 7 / 17). */
+/** Shared MSW fixtures for IP providers. */
 export const ipApiSuccess = {
   status: 'success',
   query: '8.8.8.8',
@@ -116,21 +116,29 @@ export const coinGeckoHandlers = [
   }),
 ];
 
-export const cryptoPanicFixture = {
-  results: [
+export const cryptoCompareFixture = {
+  Type: 100,
+  Message: 'News list successfully returned',
+  Data: [
     {
       title: 'Bitcoin hits new high',
       url: 'https://example.com/btc',
-      published_at: '2026-07-16T10:00:00Z',
-      source: { title: 'CoinDesk' },
-      votes: { positive: 10, negative: 2 },
+      published_on: 1721124000,
+      imageurl: 'https://example.com/btc.png',
+      source: 'coindesk',
+      source_info: { name: 'CoinDesk' },
+      upvotes: '10',
+      downvotes: '2',
     },
     {
       title: 'ETH update',
       url: 'https://example.com/eth',
-      published_at: '2026-07-16T09:00:00Z',
-      source: { title: 'The Block' },
-      votes: { positive: 1, negative: 5 },
+      published_on: 1721120400,
+      imageurl: null,
+      source: 'theblock',
+      source_info: { name: 'The Block' },
+      upvotes: 1,
+      downvotes: 5,
     },
   ],
 };
@@ -148,8 +156,8 @@ export const gNewsFixture = {
 };
 
 export const newsHandlers = [
-  http.get('https://cryptopanic.com/api/v1/posts/', () => {
-    return HttpResponse.json(cryptoPanicFixture);
+  http.get('https://min-api.cryptocompare.com/data/v2/news/', () => {
+    return HttpResponse.json(cryptoCompareFixture);
   }),
   http.get('https://gnews.io/api/v4/search', () => {
     return HttpResponse.json(gNewsFixture);

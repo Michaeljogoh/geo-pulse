@@ -4,7 +4,7 @@ import { resolveClientIp } from '../lib/clientIp.js';
 import { createRequestLog } from '../repositories/requestLogRepository.js';
 
 /**
- * Phase 13 — fire-and-forget `request_logs` after the response finishes.
+ * Fire-and-forget write to `request_logs` after the response finishes.
  * Never delays or fails the response path.
  */
 export function requestLogging(req: Request, res: Response, next: NextFunction): void {

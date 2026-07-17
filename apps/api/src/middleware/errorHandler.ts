@@ -6,9 +6,9 @@ import { AppError, isAppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
 
 /**
- * Central error → envelope mapper (plan Section 8 / Section 13).
- * Unknown errors → INTERNAL; never leak stack or upstream bodies to clients in production.
- * Upstream `details` remain on AppError for server logs only (`toApiError` strips them).
+ * Maps thrown errors into the standard API error envelope.
+ * Unknown errors → INTERNAL; never leak stacks or upstream bodies to clients in production.
+ * Upstream `details` stay on AppError for server logs only (`toApiError` strips them).
  */
 export function errorHandler(
   err: unknown,

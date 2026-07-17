@@ -19,7 +19,7 @@ function toCoins(doc: WatchlistDocument | undefined): WatchlistCoin[] {
   }));
 }
 
-/** Read `watchlists/{uid}` (Section 10 / Phase 15). */
+/** Read `watchlists/{uid}`. */
 export async function getWatchlist(uid: string): Promise<WatchlistCoin[]> {
   initFirestore();
   const snap = await getDb().collection(COLLECTIONS.WATCHLISTS).doc(uid).get();
@@ -28,7 +28,7 @@ export async function getWatchlist(uid: string): Promise<WatchlistCoin[]> {
 }
 
 /**
- * Add coin via transaction — unique coinIds, max WATCHLIST_MAX_ITEMS (Section 10).
+ * Add coin via transaction — unique coinIds, max WATCHLIST_MAX_ITEMS.
  * Idempotent if coin already present.
  */
 export async function addCoin(uid: string, coinId: string): Promise<WatchlistCoin[]> {

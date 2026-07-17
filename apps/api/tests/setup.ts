@@ -10,7 +10,7 @@ process.env.FIREBASE_PROJECT_ID = 'geopulse-test';
 process.env.FIREBASE_CLIENT_EMAIL = 'sa@geopulse-test.iam.gserviceaccount.com';
 process.env.FIREBASE_PRIVATE_KEY =
   '-----BEGIN PRIVATE KEY-----\\nTEST_KEY\\n-----END PRIVATE KEY-----\\n';
-process.env.CRYPTOPANIC_TOKEN = 'test-cryptopanic-token';
+process.env.CRYPTOCOMPARE_API_KEY = 'test-cryptocompare-key';
 process.env.GNEWS_API_KEY = 'test-gnews-key';
 process.env.CACHE_ENABLED = 'true';
 process.env.AUTH_ENABLED = 'true';
@@ -18,7 +18,7 @@ process.env.IP_PROVIDER = 'ipapi';
 process.env.COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
 
 /**
- * Phase 17 — shared MSW lifecycle for all tests (no real network).
+ * Shared MSW lifecycle for all tests (no real network).
  */
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'bypass' });

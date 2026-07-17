@@ -38,7 +38,7 @@ function toAppError(err: unknown, providerName: string): AppError {
 
 /**
  * Wrap a provider call with circuit breaker + timing.
- * Phase 13 health persistence is fire-and-forget (fail-open).
+ * Provider health persistence is fire-and-forget (fail-open).
  */
 export async function withResilience<T>(
   providerName: string,

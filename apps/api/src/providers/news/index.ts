@@ -2,7 +2,7 @@ import { env } from '../../config/env.js';
 import { logger } from '../../lib/logger.js';
 import type { NewsItem } from '../../types/domain.js';
 import { withResilience } from '../withResilience.js';
-import { CryptoPanicProvider } from './cryptoPanicProvider.js';
+import { CryptoCompareProvider } from './cryptoCompareProvider.js';
 import { GNewsProvider } from './gNewsProvider.js';
 
 export interface NewsQueryParams {
@@ -17,8 +17,8 @@ export interface FetchNewsOptions {
 }
 
 /**
- * Phase 9 — CryptoPanic primary → GNews fallback (when enabled on failure/empty).
- * Missing GNews → CryptoPanic-only (empty list OK; errors propagate).
+ * CryptoCompare primary → GNews fallback (when enabled on failure/empty).
+ * Missing GNews → CryptoCompare-only (empty list OK; errors propagate).
  */
 export async function fetchNews(
   params: NewsQueryParams,
@@ -28,7 +28,7 @@ export async function fetchNews(
   provider: string;
 }> {
   const gnewsEnabled = options.gnewsEnabled ?? Boolean(env.GNEWS_API_KEY);
-  const primary = new CryptoPanicProvider();
+  const primary = new CryptoCompareProvider();
   let primaryError: unknown;
   let emptyFromPrimary = false;
 
@@ -38,10 +38,13 @@ export async function fetchNews(
       return { items: wrapped.result, provider: wrapped.provider };
     }
     emptyFromPrimary = true;
-    logger.warn({ provider: primary.name }, 'CryptoPanic returned empty; considering GNews fallback');
+    logger.warn(
+      { provider: primary.name },
+      'CryptoCompare returned empty; considering GNews fallback',
+    );
   } catch (err) {
     primaryError = err;
-    logger.warn({ err, provider: primary.name }, 'CryptoPanic failed; considering GNews fallback');
+    logger.warn({ err, provider: primary.name }, 'CryptoCompare failed; considering GNews fallback');
   }
 
   if (gnewsEnabled) {
@@ -64,6 +67,6 @@ export async function getNews(params: NewsQueryParams): Promise<{
   return fetchNews(params);
 }
 
-export function getNewsProvider(): CryptoPanicProvider {
-  return new CryptoPanicProvider();
+export function getNewsProvider(): CryptoCompareProvider {
+  return new CryptoCompareProvider();
 }

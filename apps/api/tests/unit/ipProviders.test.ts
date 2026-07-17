@@ -10,7 +10,7 @@ import { mapIpApiResponse } from '../../src/providers/ip/ipApiProvider.js';
 import { mapIpWhoResponse } from '../../src/providers/ip/ipWhoProvider.js';
 import { ipApiSuccess, ipWhoSuccess } from '../msw/handlers.js';
 
-describe('ipIntelligence helpers (Section 12.4)', () => {
+describe('ipIntelligence helpers', () => {
   it('derives networkType deterministically', () => {
     expect(
       deriveNetworkType({ isMobile: true, isHosting: false, isProxy: false }),

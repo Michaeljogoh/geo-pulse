@@ -26,7 +26,7 @@ function fallbackProvider(primary: typeof env.IP_PROVIDER): IpIntelligenceProvid
 }
 
 /**
- * Primary → fallback chain (Phase 7).
+ * Primary → fallback IP provider chain.
  * Annotates which provider succeeded.
  */
 export async function resolveIp(ip: string): Promise<{

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Upstream providers (ip-api, CoinGecko, CryptoPanic, GNews) can fail or rate-limit.
+Upstream providers (ip-api, CoinGecko, CryptoCompare, GNews) can fail or rate-limit.
 We need a circuit breaker so cascading failures do not overwhelm slow or dead dependencies.
 Adding a third-party breaker library would expand the approved dependency list without clear benefit for our simple per-provider state machine.
 

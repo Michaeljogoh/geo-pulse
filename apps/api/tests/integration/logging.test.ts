@@ -28,7 +28,7 @@ describe('Request logging fail-open (no emulator)', () => {
   });
 });
 
-describe.runIf(usingFirestoreEmulator())('Persistence logging (Phase 13 DoD)', () => {
+describe.runIf(usingFirestoreEmulator())('Persistence logging', () => {
   const app = createApp();
 
   beforeAll(async () => {

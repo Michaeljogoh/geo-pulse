@@ -4,6 +4,40 @@ GeoPulse is an **IP-personalized crypto intelligence API**. It resolves a visito
 
 This repository contains the backend only: an Express REST API plus optional Firebase Cloud Functions for cache warming and log cleanup.
 
+## Tools & APIs
+
+### External providers
+
+| | Service | Role |
+| :---: | --- | --- |
+| <img src="docs/integrations/ip-api.svg" alt="ip-api" height="36" /> | **[ip-api](https://ip-api.com)** | Primary IP / geo intelligence |
+| <img src="docs/integrations/ipwho.svg" alt="ipwho.is" height="36" /> | **[ipwho.is](https://ipwho.is)** | Fallback IP / geo intelligence |
+| <img src="docs/integrations/coingecko.svg" alt="CoinGecko" height="36" /> | **[CoinGecko](https://www.coingecko.com/en/api)** | Markets, trending, and prices by currency |
+| <img src="docs/integrations/cryptocompare.svg" alt="CryptoCompare" height="36" /> | **[CryptoCompare](https://www.cryptocompare.com)** | Primary crypto news feed |
+| <img src="docs/integrations/gnews.svg" alt="GNews" height="36" /> | **[GNews](https://gnews.io)** | Optional regional news fallback |
+
+### Platforms
+
+| | Service | Role |
+| :---: | --- | --- |
+| <img src="docs/integrations/firebase.svg" alt="Firebase" height="36" /> | **[Firebase Auth](https://firebase.google.com/products/auth)** | Verify client ID tokens (Admin SDK) |
+| <img src="docs/integrations/firestore.svg" alt="Firestore" height="36" /> | **[Cloud Firestore](https://firebase.google.com/products/firestore)** | Users, watchlists, L2 cache, logs, provider health |
+| <img src="https://cdn.simpleicons.org/googlecloud/4285F4" alt="Google Cloud" height="36" /> | **[Cloud Functions](https://firebase.google.com/products/functions)** | Scheduled cache warm + log prune |
+| <img src="https://cdn.simpleicons.org/render/46E3B7" alt="Render" height="36" /> | **[Render](https://render.com)** | Optional Docker API hosting |
+| <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" height="36" /> | **[Docker](https://www.docker.com)** | API container image |
+
+### Core stack
+
+| | Tool | Role |
+| :---: | --- | --- |
+| <img src="https://cdn.simpleicons.org/nodedotjs/339933" alt="Node.js" height="36" /> | **[Node.js](https://nodejs.org)** 22+ | Runtime |
+| <img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript" height="36" /> | **[TypeScript](https://www.typescriptlang.org)** | Typed API + functions |
+| <img src="https://cdn.simpleicons.org/express/000000" alt="Express" height="36" /> | **[Express](https://expressjs.com)** | REST HTTP server |
+| <img src="https://cdn.simpleicons.org/zod/3E67B1" alt="Zod" height="36" /> | **[Zod](https://zod.dev)** | Env + request validation |
+| <img src="https://cdn.simpleicons.org/axios/5A29E4" alt="Axios" height="36" /> | **[Axios](https://axios-http.com)** | Upstream HTTP client |
+| <img src="https://cdn.simpleicons.org/vitest/6E9F18" alt="Vitest" height="36" /> | **[Vitest](https://vitest.dev)** + MSW | Unit / integration tests |
+| <img src="https://cdn.simpleicons.org/swagger/85EA2D" alt="OpenAPI" height="36" /> | **OpenAPI + Swagger UI** | Interactive docs at `/docs` |
+
 ## Related repositories
 
 | Repo | Link |

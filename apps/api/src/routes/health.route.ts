@@ -10,6 +10,16 @@ const startedAt = Date.now();
 
 export const healthRouter: Router = createRouter();
 
+healthRouter.get('/', (_req, res) => {
+  res.status(200).json({
+    name: 'GeoPulse Backend API',
+    description: 'IP-personalized crypto intelligence API',
+    version: '1.0.0',
+    docs: '/docs',
+    health: '/health',
+  });
+});
+
 healthRouter.get(
   '/health',
   asyncHandler(async (_req, res) => {

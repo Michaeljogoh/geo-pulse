@@ -19,6 +19,36 @@ tags:
   - name: Watchlist
 
 paths:
+  /:
+    get:
+      tags: [Health]
+      summary: API identity
+      description: No envelope. Returns the API name and links to docs/health.
+      operationId: getRoot
+      responses:
+        '200':
+          description: Service identity
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [name, description, version, docs, health]
+                properties:
+                  name:
+                    type: string
+                    example: GeoPulse Backend API
+                  description:
+                    type: string
+                  version:
+                    type: string
+                    example: '1.0.0'
+                  docs:
+                    type: string
+                    example: /docs
+                  health:
+                    type: string
+                    example: /health
+
   /health:
     get:
       tags: [Health]
